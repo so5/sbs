@@ -1,0 +1,41 @@
+{
+  "name": "simple-batch-system",
+  "version": "1.0.0",
+  "description": "simple batch system provides job schduler like async function queueing system.",
+  "main": "lib/index.js",
+  "repository": "github:so5/sbs",
+  "scripts": {
+    "format": "prettier-eslint --write */*.js",
+    "mocha": "mocha",
+    "mocha-v": "cross-env DEBUG=sbs:* mocha",
+    "mocha-vv": "cross-env DEBUG=* mocha",
+    "check": "run-s format lint test",
+    "lint": "eslint lib/*.js test/*.js",
+    "test": "nyc --reporter=html --reporter=text mocha",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
+  },
+  "author": {
+    "name": "Naoyuki Sogo"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "coveralls": "^3.0.0",
+    "cross-env": "^5.1.3",
+    "eslint": "^4.11.0",
+    "eslint-plugin-chai-expect": "^1.1.1",
+    "eslint-plugin-node": "^5.2.1",
+    "jsdoc-to-markdown": "^3.1.0-0",
+    "mocha": "^4.0.1",
+    "npm-run-all": "^4.1.2",
+    "nyc": "^11.3.0",
+    "prettier": "^1.10.2",
+    "prettier-eslint": "^8.8.1",
+    "prettier-eslint-cli": "^4.7.0",
+    "rewire": "^4.0.0",
+    "sinon": "^4.1.2",
+    "sinon-chai": "^2.14.0"
+  },
+  "dependencies": {}
+}
