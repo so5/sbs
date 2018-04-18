@@ -28,18 +28,18 @@ describe("test for FIFO class", function() {
       expect(id1).to.not.equal(id3);
       expect(id2).to.not.equal(id3);
     });
-    it("should enqueue with specified id", function(){
+    it("should enqueue with specified id", function() {
       q.enqueue("a", 1);
       const [e, id] = q.dequeue();
       expect(e).to.equal("a");
       expect(id).to.equal(1);
     });
-    it("should enqueue at the top",function(){
+    it("should enqueue at the top", function() {
       q.enqueue("a");
       q.enqueue("b");
       q.enqueue("c");
       q.enqueue("d", undefined, true);
-      const [e,] = q.dequeue();
+      const [e] = q.dequeue();
       expect(e).to.equal("d");
     });
   });
@@ -51,25 +51,25 @@ describe("test for FIFO class", function() {
       expect(q.size()).to.equal(3);
       let [e, id] = q.dequeue();
       expect(e).to.equal("a");
-      expect(id).to.be.a('string');
+      expect(id).to.be.a("string");
 
       [e, id] = q.dequeue();
       expect(e).to.equal("b");
-      expect(id).to.be.a('string');
+      expect(id).to.be.a("string");
 
       q.enqueue("d");
 
       [e, id] = q.dequeue();
       expect(e).to.equal("c");
-      expect(id).to.be.a('string');
+      expect(id).to.be.a("string");
 
       [e, id] = q.dequeue();
       expect(e).to.equal("d");
-      expect(id).to.be.a('string');
+      expect(id).to.be.a("string");
 
       [e, id] = q.dequeue();
-      expect(e).to.be.an('undefined');
-      expect(id).to.be.an('undefined');
+      expect(e).to.be.an("undefined");
+      expect(id).to.be.an("undefined");
     });
   });
   describe("#del", function() {
@@ -80,9 +80,9 @@ describe("test for FIFO class", function() {
       expect(q.size()).to.equal(3);
       q.del(id);
       expect(q.size()).to.equal(2);
-      let [e,] = q.dequeue();
+      let [e] = q.dequeue();
       expect(e).to.equal("a");
-      [e,] = q.dequeue();
+      [e] = q.dequeue();
       expect(e).to.equal("c");
     });
   });
@@ -94,9 +94,9 @@ describe("test for FIFO class", function() {
       expect(q.size()).to.equal(3);
       q.clear();
       expect(q.size()).to.equal(0);
-      const [e,id] = q.dequeue();
-      expect(e).to.be.an('undefined');
-      expect(id).to.be.an('undefined');
+      const [e, id] = q.dequeue();
+      expect(e).to.be.an("undefined");
+      expect(id).to.be.an("undefined");
     });
   });
 });

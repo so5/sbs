@@ -37,5 +37,8 @@
     "sinon": "^4.1.2",
     "sinon-chai": "^2.14.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "debug": "^3.1.0",
+    "uuid": "^3.2.1"
+  }
 }
