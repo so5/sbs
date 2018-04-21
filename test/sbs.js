@@ -2,7 +2,10 @@ const chai = require("chai");
 const { expect } = require("chai");
 const sinon = require("sinon");
 const sinonChai = require("sinon-chai");
+const chaiAsPromised = require("chai-as-promised");
+
 chai.use(sinonChai);
+chai.use(chaiAsPromised);
 
 const SBS = require("../lib/index");
 
@@ -54,6 +57,15 @@ describe("test for SimpleBatchSystem", function() {
       batch = new SBS({ maxConcurrent: 21 });
       expect(batch.maxConcurrent).to.equal(21);
     });
+    it("should not execute anything if opt.noAutoStart is true", async function() {
+      batch = new SBS({ noAutoStart: true });
+      const id = batch.qsub(stub);
+      await sleep(1000);
+      expect(batch.qstat(id)).to.equal("waiting");
+      batch.start();
+      await batch.qwait(id, 100);
+      expect(stub).to.be.calledOnce;
+    });
   });
   describe("#qsub", function() {
     it("should accept function", async function() {
@@ -71,7 +83,7 @@ describe("test for SimpleBatchSystem", function() {
       batch = new SBS({ exec: stub });
       const id1 = batch.qsub("foo");
       const id2 = batch.qsub({ args: "bar" });
-      await batch.qwait([id1, id2]);
+      await batch.qwaitAll([id1, id2]);
       expect(stub).to.be.callCount(2);
       expect(stub.getCall(0)).to.be.calledWith("foo");
       expect(stub.getCall(1)).to.be.calledWith("bar");
@@ -96,7 +108,7 @@ describe("test for SimpleBatchSystem", function() {
       expect(stub2).to.be.calledOnce;
     });
   });
-  describe("qstat", function() {
+  describe("#qstat", function() {
     it("should return running for running job", async function() {
       const id = batch.qsub(() => {
         return sleep(1000).then(stub);
@@ -122,7 +134,12 @@ describe("test for SimpleBatchSystem", function() {
       stub.onCall(1).throws();
       const id1 = batch.qsub(stub);
       const id2 = batch.qsub(stub);
-      await batch.qwait([id1, id2]);
+      try {
+        await batch.qwait(id1, 100);
+        await batch.qwait(id2, 100);
+      } catch (e) {
+        // just ignore
+      }
       expect(batch.qstat(id1)).to.equal("failed");
       expect(batch.qstat(id2)).to.equal("failed");
     });
@@ -142,6 +159,51 @@ describe("test for SimpleBatchSystem", function() {
       expect(batch.qstat(true)).to.be.a("null");
     });
   });
+  describe("#qwait", function() {
+    it("should ignore non-number interval", async function() {
+      const id = batch.qsub(stub);
+      await batch.qwait(id, "hoge");
+      expect(batch.qstat(id)).to.equal("finished");
+    });
+    it("should just wait if job is waiting or running", async function() {
+      const id1 = batch.qsub(() => {
+        return sleep(500).then(stub);
+      });
+      const id2 = batch.qsub(() => {
+        return sleep(500).then(stub);
+      });
+      await batch.qwait(id1, 10);
+      await batch.qwait(id2, 10);
+      expect(stub).to.be.callCount(2);
+    });
+  });
+  describe("#qwaitAll", function() {
+    it("should ignore non-number interval", async function() {
+      const id = batch.qsub(stub);
+      await batch.qwaitAll([id], "hoge");
+      expect(batch.qstat(id)).to.equal("finished");
+    });
+    it("should just wait if job is waiting or running", async function() {
+      const id1 = batch.qsub(() => {
+        return sleep(500).then(stub);
+      });
+      const id2 = batch.qsub(() => {
+        return sleep(500).then(stub);
+      });
+      await batch.qwaitAll([id1, id2], 10);
+      expect(stub).to.be.callCount(2);
+    });
+    it("should rejected if one of jobs failed", function() {
+      const id1 = batch.qsub(stub);
+      const id2 = batch.qsub(stub.rejects());
+      return expect(batch.qwaitAll([id1, id2], 10)).to.be.rejected;
+    });
+    it("should rejected if one of jobs failed", function() {
+      const id1 = batch.qsub(stub);
+      const id2 = batch.qsub(stub.throws());
+      return expect(batch.qwaitAll([id1, id2], 10)).to.be.rejected;
+    });
+  });
   describe("#clear", function() {
     it("should stop execution and clear all waiting job", async function() {
       const id1 = batch.qsub(() => {
@@ -156,7 +218,7 @@ describe("test for SimpleBatchSystem", function() {
       expect(batch.size()).to.equal(3);
       batch.clear();
       expect(batch.size()).to.equal(0);
-      await batch.qwait([id1, id2, id3]);
+      await batch.qwaitAll([id1, id2, id3]);
       expect(stub).to.be.not.called;
     });
   });
@@ -166,12 +228,30 @@ describe("test for SimpleBatchSystem", function() {
     beforeEach(function() {
       stub2.reset();
     });
-    it("should not retry by default", async function() {
+    it("should not retry after ecception occurred by default", async function() {
       stub2.onCall(0).throws();
+      stub2.onCall(1).returns();
       const id = batch.qsub(() => {
         return stub2().then(stub);
       });
-      await batch.qwait(id);
+      try {
+        await batch.qwait(id);
+      } catch (e) {
+        //just ignore
+      }
+      expect(stub).to.be.not.called;
+    });
+    it("should not retry after rejected by default", async function() {
+      stub2.onCall(0).rejects();
+      stub2.onCall(1).returns();
+      const id = batch.qsub(() => {
+        return stub2().then(stub);
+      });
+      try {
+        await batch.qwait(id);
+      } catch (e) {
+        //just ignore
+      }
       expect(stub).to.be.not.called;
     });
     it("should retry if retry = true", async function() {
@@ -255,7 +335,7 @@ describe("test for SimpleBatchSystem", function() {
           await stub("baz");
         })
       );
-      await batch.qwait(id);
+      await batch.qwaitAll(id);
       expect(stub.getCall(0)).to.be.calledWith("foo");
       expect(stub.getCall(1)).to.be.calledWith("bar");
       expect(stub.getCall(2)).to.be.calledWith("baz");
