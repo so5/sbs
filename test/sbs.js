@@ -228,17 +228,13 @@ describe("test for SimpleBatchSystem", function() {
     beforeEach(function() {
       stub2.reset();
     });
-    it("should not retry after ecception occurred by default", async function() {
+    it("should not retry after exception occurred by default", async function() {
       stub2.onCall(0).throws();
       stub2.onCall(1).returns();
       const id = batch.qsub(() => {
         return stub2().then(stub);
       });
-      try {
-        await batch.qwait(id);
-      } catch (e) {
-        //just ignore
-      }
+      await batch.qwait(id).catch(() => {});
       expect(stub).to.be.not.called;
     });
     it("should not retry after rejected by default", async function() {
@@ -247,11 +243,7 @@ describe("test for SimpleBatchSystem", function() {
       const id = batch.qsub(() => {
         return stub2().then(stub);
       });
-      try {
-        await batch.qwait(id);
-      } catch (e) {
-        //just ignore
-      }
+      await batch.qwait(id).catch(() => {});
       expect(stub).to.be.not.called;
     });
     it("should retry if retry = true", async function() {
@@ -283,6 +275,101 @@ describe("test for SimpleBatchSystem", function() {
       await batch.qwait(id);
       expect(stub).to.be.callCount(1);
       expect(stub2).to.be.callCount(3);
+    });
+    it("should retry if opt.retry = true", async function() {
+      stub2.onCall(0).throws();
+      stub2.onCall(1).rejects(new Error());
+      stub2.onCall(2).resolves("hoge");
+      const exec = () => {
+        return stub2().then(stub);
+      };
+      batch = new SBS({ retry: true });
+      const id = batch.qsub({ exec: exec });
+      await batch.qwait(id);
+      expect(stub).to.be.callCount(1);
+      expect(stub2).to.be.callCount(3);
+    });
+    it("should retry if opt.retry() returns true", async function() {
+      stub2.onCall(0).throws();
+      stub2.onCall(1).rejects(new Error());
+      stub2.onCall(2).resolves("hoge");
+      const exec = () => {
+        return stub2().then(stub);
+      };
+      const retry = (err) => {
+        return err instanceof Error;
+      };
+      batch = new SBS({ retry: retry });
+      const id = batch.qsub({
+        exec: exec,
+        retry: retry
+      });
+      await batch.qwait(id);
+      expect(stub).to.be.callCount(1);
+      expect(stub2).to.be.callCount(3);
+    });
+
+    it("should not retry if retry = false", async function() {
+      stub2.onCall(0).throws();
+      stub2.onCall(1).rejects(new Error());
+      stub2.onCall(2).resolves("hoge");
+      const exec = () => {
+        return stub2().then(stub);
+      };
+      const id = batch.qsub({ exec: exec, retry: false });
+      await batch.qwait(id).catch(() => {});
+      expect(stub).to.be.callCount(0);
+      expect(stub2).to.be.callCount(1);
+    });
+    it("should not retry if retry() returns true", async function() {
+      stub2.onCall(0).throws();
+      stub2.onCall(1).rejects(new Error());
+      stub2.onCall(2).resolves("hoge");
+      const exec = () => {
+        return stub2().then(stub);
+      };
+      const retry = () => {
+        return false;
+      };
+      const id = batch.qsub({
+        exec: exec,
+        retry: retry
+      });
+      await batch.qwait(id).catch(() => {});
+      expect(stub).to.be.callCount(0);
+      expect(stub2).to.be.callCount(1);
+    });
+    it("should not retry if opt.retry = false", async function() {
+      stub2.onCall(0).throws();
+      stub2.onCall(1).rejects(new Error());
+      stub2.onCall(2).resolves("hoge");
+      const exec = () => {
+        return stub2().then(stub);
+      };
+      batch = new SBS({ retry: false });
+      const id = batch.qsub({ exec: exec });
+      await batch.qwait(id).catch(() => {});
+      expect(stub).to.be.callCount(0);
+      expect(stub2).to.be.callCount(1);
+    });
+    it("should not retry if opt.retry() returns true", async function() {
+      stub2.onCall(0).throws();
+      stub2.onCall(1).rejects(new Error());
+      stub2.onCall(2).resolves("hoge");
+      const exec = () => {
+        return stub2().then(stub);
+      };
+      const retry = () => {
+        return false;
+      };
+      batch = new SBS({ retry: retry });
+      const id = batch.qsub({
+        exec: exec,
+        retry: retry
+      });
+      await batch.qwait(id).catch(() => {});
+      expect(stub).to.be.callCount(0);
+      expect(stub2).to.be.callCount(1);
     });
   });
   describe("parallel execution", function() {
