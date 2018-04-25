@@ -11,6 +11,7 @@ const SBS = require("../lib/index");
 
 /* eslint-disable-next-line no-console */
 process.on("unhandledRejection", console.dir);
+Error.stackTraceLimit = -1;
 
 async function sleep(time) {
   return new Promise((resolve) => {
@@ -204,6 +205,64 @@ describe("test for SimpleBatchSystem", function() {
       return expect(batch.qwaitAll([id1, id2], 10)).to.be.rejected;
     });
   });
+  describe("#getResult", function() {
+    it("should get resolved value from finished job", function(done) {
+      const id = batch.qsub(stub);
+      const timeout = setInterval(() => {
+        const state = batch.qstat(id);
+        if (state === "finished" || state === "failed") {
+          clearTimeout(timeout);
+          expect(batch.getResult(id)).to.equal("hoge");
+          expect(batch.getResult(id)).to.equal(null);
+          done();
+        }
+      }, 100);
+    });
+    it("should get resolved value from finished job and keep it with opt.noAutoclear", function(done) {
+      batch.noAutoClear = true;
+      const id = batch.qsub(stub);
+      const timeout = setInterval(() => {
+        const state = batch.qstat(id);
+        if (state === "finished" || state === "failed") {
+          clearTimeout(timeout);
+          expect(batch.getResult(id)).to.equal("hoge");
+          expect(batch.getResult(id)).to.equal("hoge");
+          done();
+        }
+      }, 100);
+    });
+    it("should get err object from failed job", function(done) {
+      stub = stub.rejects("hoge");
+      const id = batch.qsub(stub);
+      const timeout = setInterval(() => {
+        const state = batch.qstat(id);
+        if (state === "finished" || state === "failed") {
+          clearTimeout(timeout);
+          expect(batch.getResult(id)).to.be.a("Error");
+          expect(batch.getResult(id)).to.equal(null);
+          done();
+        }
+      }, 100);
+    });
+    it("should get err object from failed job and keep it with opt.noAutoclear", function(done) {
+      stub = stub.rejects("hoge");
+      batch.noAutoClear = true;
+      const id = batch.qsub(stub);
+      const timeout = setInterval(() => {
+        const state = batch.qstat(id);
+        if (state === "finished" || state === "failed") {
+          clearTimeout(timeout);
+          expect(batch.getResult(id)).to.be.an("Error");
+          expect(batch.getResult(id)).to.be.an("Error");
+          done();
+        }
+      }, 100);
+    });
+    it("should get undefined from running or waiting job", function() {
+      const id = batch.qsub(stub);
+      expect(batch.getResult(id)).to.be.an("undefined");
+    });
+  });
   describe("#clear", function() {
     it("should stop execution and clear all waiting job", async function() {
       const id1 = batch.qsub(() => {
@@ -222,9 +281,28 @@ describe("test for SimpleBatchSystem", function() {
       expect(stub).to.be.not.called;
     });
   });
+  describe("#clearResults", function() {
+    it("should clear finished and failed jobs", async function() {
+      stub.onCall(0).rejects();
+      stub.onCall(1).resolves();
+      const id1 = batch.qsub(stub);
+      const id2 = batch.qsub(stub);
+      const id3 = batch.qsub(stub);
+      await batch.qwait(id3);
+      batch.clearResults();
+      expect(batch.getResult(id1)).to.equal(null);
+      expect(batch.getResult(id2)).to.equal(null);
+    });
+  });
+  describe("#qsubAndWait", function() {
+    it("should submit job and wait until it finished or failed", function() {
+      stub.onCall(1).rejects();
+      expect(batch.qsubAndWait(stub, 10)).to.eventually.equal("hoge");
+      return expect(batch.qsubAndWait(stub, 10)).to.be.rejectedWith("Error");
+    });
+  });
   describe("retry functionality", function() {
     const stub2 = sinon.stub();
-    Error.stackTraceLimit = -1;
     beforeEach(function() {
       stub2.reset();
     });
