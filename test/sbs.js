@@ -61,10 +61,9 @@ describe("test for SimpleBatchSystem", function() {
     it("should not execute anything if opt.noAutoStart is true", async function() {
       batch = new SBS({ noAutoStart: true });
       const id = batch.qsub(stub);
-      await sleep(1000);
       expect(batch.qstat(id)).to.equal("waiting");
       batch.start();
-      await batch.qwait(id, 100);
+      await batch.qwait(id);
       expect(stub).to.be.calledOnce;
     });
   });
@@ -136,8 +135,12 @@ describe("test for SimpleBatchSystem", function() {
       const id1 = batch.qsub(stub);
       const id2 = batch.qsub(stub);
       try {
-        await batch.qwait(id1, 100);
-        await batch.qwait(id2, 100);
+        await batch.qwait(id1);
+      } catch (e) {
+        // just ignore
+      }
+      try {
+        await batch.qwait(id2);
       } catch (e) {
         // just ignore
       }
@@ -149,8 +152,8 @@ describe("test for SimpleBatchSystem", function() {
       await batch.qwait(id);
       expect(batch.qstat(id)).to.equal("finished");
     });
-    it("should return finished for non-existing job", function() {
-      expect(batch.qstat("hoge")).to.equal("finished");
+    it("should return removed for non-existing job", function() {
+      expect(batch.qstat("hoge")).to.equal("removed");
     });
     it("should return null if non-string argument is passed", function() {
       expect(batch.qstat(() => {})).to.be.a("null");
@@ -161,21 +164,50 @@ describe("test for SimpleBatchSystem", function() {
     });
   });
   describe("#qwait", function() {
-    it("should ignore non-number interval", async function() {
-      const id = batch.qsub(stub);
-      await batch.qwait(id, "hoge");
-      expect(batch.qstat(id)).to.equal("finished");
+    it("should just wait if job is not started", async function() {
+      batch.qsub(() => {
+        return sleep(500).then(stub);
+      });
+      const id2 = batch.qsub(stub);
+      await batch.qwait(id2);
+      expect(stub).to.be.callCount(2);
     });
-    it("should just wait if job is waiting or running", async function() {
+    it("should just wait if job is running", async function() {
       const id1 = batch.qsub(() => {
         return sleep(500).then(stub);
       });
-      const id2 = batch.qsub(() => {
-        return sleep(500).then(stub);
-      });
-      await batch.qwait(id1, 10);
-      await batch.qwait(id2, 10);
+      const id2 = batch.qsub(stub);
+      await batch.qwait(id1);
+      expect(stub).to.be.callCount(1);
+      await batch.qwait(id2);
       expect(stub).to.be.callCount(2);
+    });
+    it("should return result if job is already finished", async function() {
+      const id = batch.qsub(stub.resolves("huga"));
+      await sleep(100);
+      const result = await batch.qwait(id);
+      expect(stub).to.be.callCount(1);
+      expect(result).to.be.equal("huga");
+    });
+    it("should return error if job is already failed", async function() {
+      const id = batch.qsub(stub.throws("huga"));
+      await sleep(100);
+      try {
+        await batch.qwait(id);
+      } catch (result) {
+        expect(stub).to.be.callCount(1);
+        expect(result).to.be.a("error");
+      }
+    });
+    it("should return error if job is already failed", async function() {
+      const id = batch.qsub(stub.rejects("huga"));
+      await sleep(100);
+      try {
+        await batch.qwait(id);
+      } catch (result) {
+        expect(stub).to.be.callCount(1);
+        expect(result).to.be.a("error");
+      }
     });
   });
   describe("#qwaitAll", function() {
