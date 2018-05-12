@@ -173,10 +173,15 @@ describe("test for SimpleBatchSystem", function() {
       batch.stop();
       const id = batch.qsub(stub1);
       batch.qsub(stub2);
-      batch.qdel(id);
+      expect(batch.qdel(id)).to.be.true;
       batch.start();
       expect(stub1).to.be.not.called;
       expect(stub2).to.be.calledOnce;
+    });
+    it("should return false if id is not exist", function() {
+      let id = batch.qsub(stub);
+      id = id + "hoge";
+      expect(batch.qdel(id)).to.be.false;
     });
   });
   describe("#qstat", function() {
