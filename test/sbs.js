@@ -290,6 +290,12 @@ describe("test for SimpleBatchSystem", function() {
       batch.qdel(id);
       expect(await batch.qwait(id)).to.equal("removed");
     });
+    it("should return 'removed' if job is deleted while waiting", async function() {
+      const id = batch.qsub(stub);
+      const p = batch.qwait(id);
+      batch.qdel(id);
+      expect(await p).to.equal("removed");
+    });
   });
   describe("#qwaitAll", function() {
     it("should just wait if job is waiting or running", async function() {
