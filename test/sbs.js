@@ -698,4 +698,15 @@ describe("test for SimpleBatchSystem", function() {
       expect(stub.getCall(2)).to.be.calledWith("baz");
     });
   });
+  describe.only("job name feature(plese set DEBUG environment variable)", function() {
+    it("should log with job's name", async function() {
+      stub.onCall(0).throws();
+      stub.onCall(1).rejects(new Error());
+      stub.onCall(2).resolves("hoge");
+      batch.retry = true;
+      const id = batch.qsub({ exec: stub, name: "JOB NAME TEST" });
+      await batch.qwait(id);
+      expect(stub).to.be.callCount(3);
+    });
+  });
 });
