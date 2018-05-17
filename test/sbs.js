@@ -698,7 +698,7 @@ describe("test for SimpleBatchSystem", function() {
       expect(stub.getCall(2)).to.be.calledWith("baz");
     });
   });
-  describe.only("job name feature(plese set DEBUG environment variable)", function() {
+  describe.skip("job name feature(plese set DEBUG environment variable)", function() {
     it("should log with job's name", async function() {
       stub.onCall(0).throws();
       stub.onCall(1).rejects(new Error());
