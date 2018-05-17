@@ -91,11 +91,31 @@ describe("test for SimpleBatchSystem", function() {
       batch = new SBS({ retryDelay: -13 });
       expect(batch.retryDelay).to.equal(0);
     });
-    it("should set retryDelay by option object", function() {
+    it("should set integer number retryDelay by option object", function() {
       batch = new SBS({ retryDelay: 10.3 });
       expect(batch.retryDelay).to.equal(10);
       batch = new SBS({ retryDelay: 21 });
       expect(batch.retryDelay).to.equal(21);
+    });
+    it("should ignore non-number value or less than 0 for interval", function() {
+      batch = new SBS({ interval: "hoge" });
+      expect(batch.interval).to.equal(0);
+      batch = new SBS({ interval: NaN });
+      expect(batch.interval).to.equal(0);
+      batch = new SBS({ interval: {} });
+      expect(batch.interval).to.equal(0);
+      batch = new SBS({ interval: stub });
+      expect(batch.interval).to.equal(0);
+      batch = new SBS({ interval: false });
+      expect(batch.interval).to.equal(0);
+      batch = new SBS({ interval: -13 });
+      expect(batch.interval).to.equal(0);
+    });
+    it("should set integer number interval by option object", function() {
+      batch = new SBS({ interval: 10.3 });
+      expect(batch.interval).to.equal(10);
+      batch = new SBS({ interval: 21 });
+      expect(batch.interval).to.equal(21);
     });
     it("should ignore non-function value for exec", function() {
       batch = new SBS({ exec: "hoge" });
@@ -116,7 +136,11 @@ describe("test for SimpleBatchSystem", function() {
       batch.exec();
       expect(stub).to.be.calledOnce;
     });
-    it("should not execute anything if opt.noAutoStart is true", async function() {
+    it("should set label for logging", function() {
+      batch = new SBS({ name: "hoge" });
+      expect(batch.name).to.equal("hoge");
+    });
+    it("should not execute anything until start() called with noAutoStart=true", async function() {
       batch = new SBS({ noAutoStart: true });
       const id = batch.qsub(stub);
       expect(batch.qstat(id)).to.equal("waiting");
@@ -133,6 +157,11 @@ describe("test for SimpleBatchSystem", function() {
     });
     it("should accept object with exec and args property", async function() {
       const id = batch.qsub({ exec: stub, args: "huga" });
+      await batch.qwait(id);
+      expect(stub).to.be.calledWith("huga");
+    });
+    it("should accept object with name property", async function() {
+      const id = batch.qsub({ exec: stub, args: "huga", name: "piyo" });
       await batch.qwait(id);
       expect(stub).to.be.calledWith("huga");
     });
