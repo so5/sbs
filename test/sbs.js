@@ -497,13 +497,17 @@ describe("test for SimpleBatchSystem", function() {
       stub2.reset();
     });
     it("should not retry after exception occurred by default", async function() {
-      stub2.onCall(0).throws();
+      stub2.onCall(0).throws(new Error("hoge"));
       stub2.onCall(1).returns();
       const id = batch.qsub(() => {
         return stub2().then(stub);
       });
-      await batch.qwait(id).catch(() => {});
-      expect(stub).to.be.not.called;
+      try {
+        await batch.qwait(id);
+      } catch (e) {
+        expect(e.message).to.equal("hoge");
+        expect(stub).to.be.not.called;
+      }
     });
     it("should not retry after rejected by default", async function() {
       stub2.onCall(0).rejects();
@@ -661,12 +665,28 @@ describe("test for SimpleBatchSystem", function() {
     it("should retry with delay", async function() {
       stub2.onCall(0).throws();
       stub2.onCall(1).resolves();
-      const exec = async () => {
-        await stub2();
-        return stub();
-      };
-      const id = batch.qsub({ exec: exec, retryDelay: 1000, retry: true });
+      const id = batch.qsub({ exec: stub2, retryDelay: 1000, retry: true });
+      batch.qsub(stub);
       await batch.qwait(id).catch(() => {});
+      expect(stub).to.be.callCount(0);
+      expect(stub2).to.be.callCount(2);
+    });
+    it("should retry later if retryLater is true", async function() {
+      batch.retryLater = true;
+      stub2.onCall(0).throws();
+      stub2.onCall(1).resolves();
+      const id = batch.qsub({ exec: stub2, retryDelay: 1000, retry: true });
+      batch.qsub(stub);
+      await batch.qwait(id);
+      expect(stub).to.be.callCount(1);
+      expect(stub2).to.be.callCount(2);
+    });
+    it("should retry later if job.retryLater is true", async function() {
+      stub2.onCall(0).throws();
+      stub2.onCall(1).resolves();
+      const id = batch.qsub({ exec: stub2, retryDelay: 1000, retry: true, retryLater: true });
+      batch.qsub(stub);
+      await batch.qwait(id);
       expect(stub).to.be.callCount(1);
       expect(stub2).to.be.callCount(2);
     });
