@@ -491,6 +491,16 @@ describe("test for SimpleBatchSystem", function() {
       }
     });
   });
+  describe("#getRunning", function() {
+    it("should return array of running job id", async function() {
+      batch.maxConcurrent = 3;
+      const id1 = batch.qsub(sleep.bind(null, 1500));
+      const id2 = batch.qsub(sleep.bind(null, 1500));
+      const id3 = batch.qsub(sleep.bind(null, 1500));
+      await sleep(1000);
+      expect(batch.getRunning()).to.have.members([id1, id2, id3]);
+    });
+  });
   describe("retry functionality", function() {
     const stub2 = sinon.stub();
     beforeEach(function() {
