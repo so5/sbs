@@ -389,6 +389,18 @@ describe("test for SimpleBatchSystem", function() {
         }
       }, 100);
     });
+    it("should get resolved value from finished job and keep it if keep argument is true", function(done) {
+      const id = batch.qsub(stub);
+      const timeout = setInterval(() => {
+        const state = batch.qstat(id);
+        if (state === "finished" || state === "failed") {
+          clearTimeout(timeout);
+          expect(batch.getResult(id, true)).to.equal("hoge");
+          expect(batch.getResult(id)).to.equal("hoge");
+          done();
+        }
+      }, 100);
+    });
     it("should get err object from failed job", function(done) {
       stub.rejects(new Error("huga"));
       const id = batch.qsub(stub);
@@ -414,6 +426,19 @@ describe("test for SimpleBatchSystem", function() {
           clearTimeout(timeout);
           expect(batch.getResult(id)).to.be.an("Error");
           expect(batch.getResult(id)).to.be.an("Error");
+          done();
+        }
+      }, 100);
+    });
+    it("should get err object from failed job and keep it if keep argument is true", function(done) {
+      stub = stub.rejects("hoge");
+      const id = batch.qsub(stub);
+      const timeout = setInterval(() => {
+        const state = batch.qstat(id);
+        if (state === "finished" || state === "failed") {
+          clearTimeout(timeout);
+          expect(batch.getResult(id, true)).to.be.an("Error");
+          expect(batch.getResult(id, true)).to.be.an("Error");
           done();
         }
       }, 100);
