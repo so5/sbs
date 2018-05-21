@@ -196,14 +196,15 @@ describe("test for SimpleBatchSystem", function() {
     });
   });
   describe("#qdel", function() {
-    it("should delete job from queue", function() {
+    it("should delete job from queue", async function() {
       const stub1 = sinon.stub();
       const stub2 = sinon.stub();
       batch.stop();
-      const id = batch.qsub(stub1);
-      batch.qsub(stub2);
-      expect(batch.qdel(id)).to.be.true;
+      const id1 = batch.qsub(stub1);
+      const id2 = batch.qsub(stub2);
+      expect(batch.qdel(id1)).to.be.true;
       batch.start();
+      await batch.qwait(id2);
       expect(stub1).to.be.not.called;
       expect(stub2).to.be.calledOnce;
     });
@@ -473,8 +474,7 @@ describe("test for SimpleBatchSystem", function() {
   describe("#qsubAndWait", function() {
     it("should submit job and wait until it finished or failed", async function() {
       stub.onCall(1).rejects();
-      const rt = await batch.qsubAndWait(stub);
-      expect(rt).to.equal("hoge");
+      expect(await batch.qsubAndWait(stub)).to.equal("hoge");
       try {
         await batch.qsubAndWait(stub);
       } catch (e) {
@@ -499,6 +499,19 @@ describe("test for SimpleBatchSystem", function() {
       const id3 = batch.qsub(sleep.bind(null, 1500));
       await sleep(1000);
       expect(batch.getRunning()).to.have.members([id1, id2, id3]);
+    });
+  });
+  describe("#start", function() {
+    it("should do nothing if start called while queue is already running", async function() {
+      batch.start();
+      expect(await batch.qsubAndWait(stub)).to.equal("hoge");
+    });
+    it("should do nothing if stop called when queue is already stopped", async function() {
+      batch.stop();
+      batch.stop();
+      const p = batch.qsubAndWait(stub);
+      batch.start();
+      expect(await p).to.equal("hoge");
     });
   });
   describe("retry functionality", function() {
