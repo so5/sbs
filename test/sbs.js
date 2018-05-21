@@ -326,6 +326,17 @@ describe("test for SimpleBatchSystem", function() {
       batch.qdel(id);
       expect(await p).to.equal("removed");
     });
+    it("should return each promise for multi call", async function() {
+      batch.qsub(() => {
+        return sleep(500).then(stub);
+      });
+      const id2 = batch.qsub(stub);
+      const p1 = batch.qwait(id2);
+      const p2 = batch.qwait(id2);
+      const rt = await Promise.all([p1, p2]);
+      expect(stub).to.be.callCount(2);
+      expect(rt).to.have.members(["hoge", "hoge"]);
+    });
   });
   describe("#qwaitAll", function() {
     it("should just wait if job is waiting or running", async function() {
