@@ -29,7 +29,7 @@ describe("test for FIFO class", function() {
       expect(id2).to.not.equal(id3);
     });
     it("should enqueue with specified id", function() {
-      q.enqueue("a", 1);
+      q.enqueue("a", false, 1);
       const [e, id] = q.dequeue();
       expect(e).to.equal("a");
       expect(id).to.equal(1);
@@ -38,7 +38,7 @@ describe("test for FIFO class", function() {
       q.enqueue("a");
       q.enqueue("b");
       q.enqueue("c");
-      q.enqueue("d", undefined, true);
+      q.enqueue("d", true);
       const [e] = q.dequeue();
       expect(e).to.equal("d");
     });
