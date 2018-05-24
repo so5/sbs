@@ -9,10 +9,11 @@
     "mocha": "mocha",
     "mocha-v": "cross-env DEBUG=sbs:* mocha",
     "mocha-vv": "cross-env DEBUG=* mocha",
-    "check": "run-s format lint test",
+    "check": "run-s format lint testverbose",
     "lint": "eslint lib/*.js test/*.js",
-    "test": "nyc --reporter=html --reporter=text mocha",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "testVerbose": "nyc --reporter=html --reporter=text mocha",
+    "test": "nyc mocha",
+    "coverage": "nyc report --reporter=lcovonly | coveralls"
   },
   "author": {
     "name": "Naoyuki Sogo"
