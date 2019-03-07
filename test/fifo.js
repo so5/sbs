@@ -4,17 +4,17 @@ const FIFO = require("../lib/fifo");
 
 let q = null;
 
-describe("test for FIFO class", function() {
-  beforeEach(function() {
+describe("test for FIFO class", ()=>{
+  beforeEach(()=>{
     q = new FIFO();
   });
-  describe("#constructor", function() {
-    it("should have empty queue", function() {
+  describe("#constructor", ()=>{
+    it("should have empty queue", ()=>{
       expect(q.size()).to.equal(0);
     });
   });
-  describe("#enqueue", function() {
-    it("should increase number of queue", function() {
+  describe("#enqueue", ()=>{
+    it("should increase number of queue", ()=>{
       const id1 = q.enqueue("a");
       expect(q.size()).to.equal(1);
       expect(id1).to.be.a("string");
@@ -28,13 +28,13 @@ describe("test for FIFO class", function() {
       expect(id1).to.not.equal(id3);
       expect(id2).to.not.equal(id3);
     });
-    it("should enqueue with specified id", function() {
+    it("should enqueue with specified id", ()=>{
       q.enqueue("a", false, 1);
       const [e, id] = q.dequeue();
       expect(e).to.equal("a");
       expect(id).to.equal(1);
     });
-    it("should enqueue at the top", function() {
+    it("should enqueue at the top", ()=>{
       q.enqueue("a");
       q.enqueue("b");
       q.enqueue("c");
@@ -43,8 +43,8 @@ describe("test for FIFO class", function() {
       expect(e).to.equal("d");
     });
   });
-  describe("#dequeue", function() {
-    it("should reduce number of queue", function() {
+  describe("#dequeue", ()=>{
+    it("should reduce number of queue", ()=>{
       q.enqueue("a");
       q.enqueue("b");
       q.enqueue("c");
@@ -72,8 +72,8 @@ describe("test for FIFO class", function() {
       expect(id).to.be.an("undefined");
     });
   });
-  describe("#del", function() {
-    it("should remove specific entry", function() {
+  describe("#del", ()=>{
+    it("should remove specific entry", ()=>{
       q.enqueue("a");
       const id = q.enqueue("b");
       q.enqueue("c");
@@ -86,8 +86,8 @@ describe("test for FIFO class", function() {
       expect(e).to.equal("c");
     });
   });
-  describe("#clear", function() {
-    it("should remove all entry", function() {
+  describe("#clear", ()=>{
+    it("should remove all entry", ()=>{
       q.enqueue("a");
       q.enqueue("b");
       q.enqueue("c");
