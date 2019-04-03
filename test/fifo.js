@@ -69,8 +69,8 @@ describe("test for FIFO class", ()=>{
       expect(id).to.be.a("string");
 
       [e, id] = q.dequeue();
-      expect(e).to.be.an("undefined");
-      expect(id).to.be.an("undefined");
+      expect(e).to.be.null;
+      expect(id).to.be.null;
     });
   });
   describe("#del", ()=>{
@@ -96,8 +96,8 @@ describe("test for FIFO class", ()=>{
       q.clear();
       expect(q.size()).to.equal(0);
       const [e, id] = q.dequeue();
-      expect(e).to.be.an("undefined");
-      expect(id).to.be.an("undefined");
+      expect(e).to.be.null;
+      expect(id).to.be.null;
     });
   });
 });
