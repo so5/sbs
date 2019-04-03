@@ -220,12 +220,8 @@ describe("test for SimpleBatchSystem", ()=>{
       const id = batch.qsub(()=>{
         return sleep(1000).then(stub);
       });
-      return new Promise((resolve)=>{
-        setTimeout(()=>{
-          expect(batch.qstat(id)).to.equal("running");
-          resolve();
-        }, 400);
-      });
+      await sleep(400);
+      expect(batch.qstat(id)).to.equal("running");
     });
     it("should return waiting for waiting job", ()=>{
       batch.qsub(()=>{
