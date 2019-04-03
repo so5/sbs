@@ -1,3 +1,4 @@
+"use strict";
 const chai = require("chai");
 const { expect } = require("chai");
 const sinon = require("sinon");
@@ -761,9 +762,21 @@ describe("test for SimpleBatchSystem", ()=>{
       expect(stub2).to.be.callCount(2);
     });
   });
+  describe.skip("job name feature(plese set DEBUG environment variable)", ()=>{
+    it("should log with job's name", async()=>{
+      stub.onCall(0).throws();
+      stub.onCall(1).rejects(new Error());
+      stub.onCall(2).resolves("hoge");
+      batch.retry = true;
+      batch.name = "BATCH NAME";
+      const id = batch.qsub({ exec: stub, name: "JOB NAME" });
+      await batch.qwait(id);
+      expect(stub).to.be.callCount(3);
+    });
+  });
   describe("parallel execution", ()=>{
     it("should execute up to 3 parallel", async function() {
-      this.timeout(3000);
+      this.timeout(3000); //eslint-disable-line no-invalid-this
       batch.maxConcurrent = 3;
       batch.qsub(()=>{
         return sleep(1000).then(stub);
@@ -784,13 +797,10 @@ describe("test for SimpleBatchSystem", ()=>{
         return sleep(1000).then(stub);
       });
       expect(batch.size()).to.equal(6);
-      setTimeout(()=>{
-        batch.stop();
-      }, 500);
-      setTimeout(()=>{
-        expect(stub).to.be.callCount(3);
-        return Promise.resolve();
-      }, 1500);
+      await sleep(500);
+      batch.stop();
+      await sleep(1500);
+      expect(stub).to.be.callCount(3);
     });
     it("should execute in order of submitted", async()=>{
       const id = [];
@@ -815,18 +825,6 @@ describe("test for SimpleBatchSystem", ()=>{
       expect(stub.getCall(0)).to.be.calledWith("foo");
       expect(stub.getCall(1)).to.be.calledWith("bar");
       expect(stub.getCall(2)).to.be.calledWith("baz");
-    });
-  });
-  describe.skip("job name feature(plese set DEBUG environment variable)", ()=>{
-    it("should log with job's name", async()=>{
-      stub.onCall(0).throws();
-      stub.onCall(1).rejects(new Error());
-      stub.onCall(2).resolves("hoge");
-      batch.retry = true;
-      batch.name = "BATCH NAME";
-      const id = batch.qsub({ exec: stub, name: "JOB NAME" });
-      await batch.qwait(id);
-      expect(stub).to.be.callCount(3);
     });
   });
 });

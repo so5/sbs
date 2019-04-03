@@ -24,7 +24,7 @@
     "eqeqeq": ["error", "always", {"null": "ignore"}],
     "func-style": ["error", "declaration", { "allowArrowFunctions": true }],
     "indent": ["error", 2, {"SwitchCase": 1}],
-    "lines-around-comment": ["error", {
+    "lines-around-comment": ["warn", {
         "beforeBlockComment": true,
         "beforeLineComment": false
     }],
