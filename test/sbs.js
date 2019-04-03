@@ -2,9 +2,8 @@
 const chai = require("chai");
 const { expect } = require("chai");
 const sinon = require("sinon");
-const sinonChai = require("sinon-chai");
-
-chai.use(sinonChai);
+chai.use(require("sinon-chai"));
+chai.use(require("chai-as-promised"));
 
 const SBS = require("../lib/index");
 
@@ -232,23 +231,25 @@ describe("test for SimpleBatchSystem", ()=>{
       });
       expect(batch.qstat(id)).to.equal("waiting");
     });
-    it("should return failed for failed job", async()=>{
+    it("should return failed if job was rejcted", async()=>{
       stub.onCall(0).rejects();
-      stub.onCall(1).throws();
-      const id1 = batch.qsub(stub);
-      const id2 = batch.qsub(stub);
+      const id = batch.qsub(stub);
       try {
-        await batch.qwait(id1);
+        await batch.qwait(id);
       } catch (e) {
         //just ignore
       }
+      expect(batch.qstat(id)).to.equal("failed");
+    });
+    it("should return failed if job throwed exception", async()=>{
+      stub.onCall(0).throws();
+      const id = batch.qsub(stub);
       try {
-        await batch.qwait(id2);
+        await batch.qwait(id);
       } catch (e) {
         //just ignore
       }
-      expect(batch.qstat(id1)).to.equal("failed");
-      expect(batch.qstat(id2)).to.equal("failed");
+      expect(batch.qstat(id)).to.equal("failed");
     });
     it("should return finished for finished job", async()=>{
       const id = batch.qsub(stub);
@@ -292,27 +293,10 @@ describe("test for SimpleBatchSystem", ()=>{
       expect(stub).to.be.callCount(1);
       expect(result).to.be.equal("huga");
     });
-    it("should return error if job is already failed", async()=>{
+    it("should be rejected with result if job is already failed", async()=>{
       const id = batch.qsub(stub.throws("huga"));
       await sleep(100);
-
-      try {
-        await batch.qwait(id);
-      } catch (result) {
-        expect(stub).to.be.callCount(1);
-        expect(result).to.be.a("error");
-      }
-    });
-    it("should return error if job is already failed", async()=>{
-      const id = batch.qsub(stub.rejects("huga"));
-      await sleep(100);
-
-      try {
-        await batch.qwait(id);
-      } catch (result) {
-        expect(stub).to.be.callCount(1);
-        expect(result).to.be.a("error");
-      }
+      await expect(batch.qwait(id)).to.be.rejectedWith(Error);
     });
     it("should return 'removed' if job is already removed", async()=>{
       const id = batch.qsub(stub);
@@ -348,29 +332,17 @@ describe("test for SimpleBatchSystem", ()=>{
       await batch.qwaitAll([id1, id2]);
       expect(stub).to.be.callCount(2);
     });
-    it("should rejected if one of jobs rejected", async()=>{
+    it("should rejected if one of jobs rejected", ()=>{
       stub.onCall(1).rejects(new Error("huga"));
       const id1 = batch.qsub(stub);
       const id2 = batch.qsub(stub);
-      try {
-        await batch.qwaitAll([id1, id2]);
-        expect.fail();
-      } catch (e) {
-        expect(e).to.be.an("error");
-        expect(e.message).to.equal("huga");
-      }
+      return expect(batch.qwaitAll([id1, id2])).to.be.rejectedWith("huga");
     });
-    it("should rejected if one of jobs throws", async()=>{
+    it("should rejected if one of jobs throws", ()=>{
       stub.onCall(1).throws(new Error("huga"));
       const id1 = batch.qsub(stub);
       const id2 = batch.qsub(stub);
-      try {
-        await batch.qwaitAll([id1, id2]);
-        expect.fail();
-      } catch (e) {
-        expect(e).to.be.an("error");
-        expect(e.message).to.equal("huga");
-      }
+      return expect(batch.qwaitAll([id1, id2])).to.be.rejectedWith("huga");
     });
   });
   describe("#getResult", ()=>{
@@ -508,23 +480,14 @@ describe("test for SimpleBatchSystem", ()=>{
   });
   describe("#qsubAndWait", ()=>{
     it("should submit job and wait until it finished or failed", async()=>{
-      stub.onCall(1).rejects();
-      expect(await batch.qsubAndWait(stub)).to.equal("hoge");
-
-      try {
-        await batch.qsubAndWait(stub);
-      } catch (e) {
-        expect(e).to.be.an("error");
-        expect(e.message).to.equal("Error");
-      }
+      stub.onCall(1).rejects("huga");
+      await Promise.all([
+        expect(batch.qsubAndWait(stub)).to.become("hoge"),
+        expect(batch.qsubAndWait(stub)).to.be.rejectedWith(Error)
+      ]);
     });
     it("should rejected if job is illegal", async()=>{
-      try {
-        await batch.qsubAndWait("hoge");
-      } catch (e) {
-        expect(e).to.be.a("error");
-        expect(e.message).to.equal("job submit failed");
-      }
+      await expect(batch.qsubAndWait("hoge")).to.be.rejectedWith(Error, /job submit failed/);
     });
   });
   describe("#getRunning", ()=>{
