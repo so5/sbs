@@ -1,23 +1,29 @@
 language: node_js
 after_success: npm run coverage
+os:
+  - linux
+  - osx
+  - windows
+dist:
+  - xenial
+  - trusty
+node_js:
+  - lts/*
+  - '8'
+  - stable
+  
 matrix:
-  include:
-    - os: linux
-      dist: xenial
-      node_js: lts/*
-    - os: linux
-      dist: xenial
-      node_js: '8'
-    - os: linux
-      dist: xenial
-      node_js: stable
-    - os: linux
-      dist: trusty
-      node_js: lts/*
-    - os: osx
-      node_js: lts/*
-    - os: windows
-      node_js: lts/*
+  exclude:
+    - node_js: '8'
+      - os: osx
+      - os: windows
+      - os: linux
+        dist: trysty
+    - node_js: stable
+      - os: osx
+      - os: windows
+      - os: linux
+        dist: trysty
 
 jobs:
   include:
