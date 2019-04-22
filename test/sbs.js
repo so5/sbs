@@ -207,11 +207,12 @@ describe("test for SimpleBatchSystem", ()=>{
       await batch.qwait(id2);
       expect(stub1).to.be.not.called;
       expect(stub2).to.be.calledOnce;
+      await batch.qwait(id1);
     });
-    it("should return false if id is not exist", ()=>{
-      let id = batch.qsub(stub);
-      id += "hoge";
-      expect(batch.qdel(id)).to.be.false;
+    it("should return false if id is not exist", async ()=>{
+      const id = batch.qsub(stub);
+      expect(batch.qdel(id+"hoge")).to.be.false;
+      await batch.qwait(id);
     });
   });
   describe("#qstat", ()=>{
@@ -221,34 +222,29 @@ describe("test for SimpleBatchSystem", ()=>{
       });
       await sleep(400);
       expect(batch.qstat(id)).to.equal("running");
+      await batch.qwait(id);
     });
-    it("should return waiting for waiting job", ()=>{
-      batch.qsub(()=>{
+    it("should return waiting for waiting job", async function (){
+      this.timeout(4000); //eslint-disable-line no-invalid-this
+      const id1 = batch.qsub(()=>{
         return sleep(1500).then(stub);
       });
-      const id = batch.qsub(()=>{
+      const id2 = batch.qsub(()=>{
         return sleep(1500).then(stub);
       });
-      expect(batch.qstat(id)).to.equal("waiting");
+      expect(batch.qstat(id2)).to.equal("waiting");
+      await batch.qwaitAll([id1, id2]);
     });
     it("should return failed if job was rejcted", async()=>{
       stub.onCall(0).rejects();
       const id = batch.qsub(stub);
-      try {
-        await batch.qwait(id);
-      } catch (e) {
-        //just ignore
-      }
+      await batch.qwait(id).catch(()=>{});
       expect(batch.qstat(id)).to.equal("failed");
     });
     it("should return failed if job throwed exception", async()=>{
       stub.onCall(0).throws();
       const id = batch.qsub(stub);
-      try {
-        await batch.qwait(id);
-      } catch (e) {
-        //just ignore
-      }
+      await batch.qwait(id).catch(()=>{});
       expect(batch.qstat(id)).to.equal("failed");
     });
     it("should return finished for finished job", async()=>{
@@ -269,12 +265,13 @@ describe("test for SimpleBatchSystem", ()=>{
   });
   describe("#qwait", ()=>{
     it("should just wait if job is not started", async()=>{
-      batch.qsub(()=>{
+      const id1 = batch.qsub(()=>{
         return sleep(500).then(stub);
       });
       const id2 = batch.qsub(stub);
       await batch.qwait(id2);
       expect(stub).to.be.callCount(2);
+      await batch.qwait(id1);
     });
     it("should just wait if job is running", async()=>{
       const id1 = batch.qsub(()=>{
@@ -304,13 +301,14 @@ describe("test for SimpleBatchSystem", ()=>{
       expect(await batch.qwait(id)).to.equal("removed");
     });
     it("should return 'removed' if job is deleted while waiting", async()=>{
+      batch.stop();
       const id = batch.qsub(stub);
-      const p = batch.qwait(id);
       batch.qdel(id);
-      expect(await p).to.equal("removed");
+      batch.start();
+      expect(await batch.qwait(id)).to.equal("removed");
     });
     it("should return each promise for multi call", async()=>{
-      batch.qsub(()=>{
+      const id1 = batch.qsub(()=>{
         return sleep(500).then(stub);
       });
       const id2 = batch.qsub(stub);
@@ -319,6 +317,7 @@ describe("test for SimpleBatchSystem", ()=>{
       const rt = await Promise.all([p1, p2]);
       expect(stub).to.be.callCount(2);
       expect(rt).to.have.members(["hoge", "hoge"]);
+      await batch.qwait(id1);
     });
   });
   describe("#qwaitAll", ()=>{
@@ -432,6 +431,7 @@ describe("test for SimpleBatchSystem", ()=>{
   });
   describe("#clear", ()=>{
     it("should stop execution and clear all waiting job", async()=>{
+      batch.stop();
       const id1 = batch.qsub(()=>{
         return sleep(1000).then(stub);
       });
@@ -444,25 +444,15 @@ describe("test for SimpleBatchSystem", ()=>{
       expect(batch.size()).to.equal(3);
       batch.clear();
       expect(batch.size()).to.equal(0);
-      await batch.qwaitAll([id1, id2, id3]);
       expect(stub).to.be.not.called;
     });
-    it("should resolve waiting promise if job is already removed", async()=>{
+    it("should resolve with 'removed' if batch is cleared while running", async()=>{
       const id1 = batch.qsub(()=>{
         return sleep(1000).then(stub);
       });
-      const id2 = batch.qsub(stub);
       const p1 = batch.qwait(id1);
-      const p2 = batch.qwait(id2);
-      const timeout = setInterval(async()=>{
-        const stat = batch.qstat(id1);
-        if (stat === "running") {
-          batch.clear();
-          clearInterval(timeout);
-          expect(await p1).to.equal("hoge");
-          expect(await p2).to.equal("removed");
-        }
-      });
+      batch.clear();
+      expect(await p1).to.equal("removed");
     });
   });
   describe("#clearResults", ()=>{
@@ -471,11 +461,12 @@ describe("test for SimpleBatchSystem", ()=>{
       stub.onCall(1).resolves();
       const id1 = batch.qsub(stub);
       const id2 = batch.qsub(stub);
-      const id3 = batch.qsub(stub);
-      await batch.qwait(id3);
+      await batch.qsubAndWait(stub);
       batch.clearResults();
       expect(batch.getResult(id1)).to.equal(null);
       expect(batch.getResult(id2)).to.equal(null);
+      await expect(batch.qwait(id1)).to.be.rejected;
+      await expect(batch.qwait(id2)).to.be.fulfilled;
     });
   });
   describe("#qsubAndWait", ()=>{
@@ -498,6 +489,7 @@ describe("test for SimpleBatchSystem", ()=>{
       const id3 = batch.qsub(sleep.bind(null, 1500));
       await sleep(1000);
       expect(batch.getRunning()).to.have.members([id1, id2, id3]);
+      await batch.qwaitAll([id1,id2,id3])
     });
   });
   describe("#start", ()=>{
@@ -721,7 +713,7 @@ describe("test for SimpleBatchSystem", ()=>{
       expect(stub2).to.be.callCount(2);
     });
   });
-  describe.skip("job name feature(plese set DEBUG environment variable)", ()=>{
+  describe("job name feature(plese set DEBUG environment variable)", ()=>{
     it("should log with job's name", async()=>{
       stub.onCall(0).throws();
       stub.onCall(1).rejects(new Error());
@@ -735,52 +727,56 @@ describe("test for SimpleBatchSystem", ()=>{
   });
   describe("parallel execution", ()=>{
     it("should execute up to 3 parallel", async function() {
-      this.timeout(3000); //eslint-disable-line no-invalid-this
+      this.timeout(10000); //eslint-disable-line no-invalid-this
       batch.maxConcurrent = 3;
-      batch.qsub(()=>{
+      const ids=[];
+      ids.push(batch.qsub(()=>{
         return sleep(1000).then(stub);
-      });
-      batch.qsub(()=>{
+      }));
+      ids.push(batch.qsub(()=>{
         return sleep(1000).then(stub);
-      });
-      batch.qsub(()=>{
+      }));
+      ids.push(batch.qsub(()=>{
         return sleep(1000).then(stub);
-      });
-      batch.qsub(()=>{
+      }));
+      ids.push(batch.qsub(()=>{
         return sleep(1000).then(stub);
-      });
-      batch.qsub(()=>{
+      }));
+      ids.push(batch.qsub(()=>{
         return sleep(1000).then(stub);
-      });
-      batch.qsub(()=>{
+      }));
+      ids.push(batch.qsub(()=>{
         return sleep(1000).then(stub);
-      });
+      }));
       expect(batch.size()).to.equal(6);
       await sleep(500);
       batch.stop();
       await sleep(1500);
       expect(stub).to.be.callCount(3);
+      
+      batch.start();
+      await batch.qwaitAll(ids);
     });
     it("should execute in order of submitted", async()=>{
-      const id = [];
-      id.push(
+      const ids = [];
+      ids.push(
         batch.qsub(async()=>{
           await sleep(100);
           await stub("foo");
         })
       );
-      id.push(
+      ids.push(
         batch.qsub(async()=>{
           await sleep(10);
           await stub("bar");
         })
       );
-      id.push(
+      ids.push(
         batch.qsub(async()=>{
           await stub("baz");
         })
       );
-      await batch.qwaitAll(id);
+      await batch.qwaitAll(ids);
       expect(stub.getCall(0)).to.be.calledWith("foo");
       expect(stub.getCall(1)).to.be.calledWith("bar");
       expect(stub.getCall(2)).to.be.calledWith("baz");
