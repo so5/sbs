@@ -8,7 +8,7 @@ matrix:
       node_js: lts/*
     - os: linux
       dist: xenial
-      node_js: lts/cabon
+      node_js: '8'
     - os: linux
       dist: xenial
       node_js: stable
