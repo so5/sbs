@@ -7,7 +7,10 @@ os:
 - linux
 - osx
 - windows
-
+matrix:
+  exclude:
+  - os: windows
+  - node_js: stable
 after_success: npm run coverage
 
 jobs:
