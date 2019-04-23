@@ -1,30 +1,24 @@
 language: node_js
+node_js:
+- '8'
+- stable
+- lts/*
+os:
+- linux
+- osx
+- windows
+dist:
+- trusty
+- xenial
+
 after_success: npm run coverage
-  
-matrix:
-  include:
-    - os: linux
-      dist: xenial
-      node_js: lts/*
-    - os: linux
-      dist: xenial
-      node_js: '8'
-    - os: linux
-      dist: xenial
-      node_js: stable
-    - os: linux
-      dist: trusty
-      node_js: lts/*
-    - os: osx
-      node_js: lts/*
-    - os: windows
-      node_js: lts/*
 
 jobs:
   include:
   - stage: npm publish
     node_js: lts/*
-    script: skip
+    os: linux
+    script: echo deploy to npm
     deploy:
       provider: npm
       email: sogo@longtail-software.co.jp
