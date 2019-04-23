@@ -29,7 +29,7 @@
     "jsdoc-to-markdown": "^4.0.1",
     "mocha": "^6.0.2",
     "npm-run-all": "^4.1.2",
-    "nyc": "^13.3.0",
+    "nyc": "^14.0.0",
     "prettier": "^1.10.2",
     "prettier-eslint": "^8.8.1",
     "prettier-eslint-cli": "^4.7.0",
