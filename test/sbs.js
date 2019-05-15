@@ -10,6 +10,11 @@ const SBS = require("../lib/index");
 /*eslint-disable-next-line no-console */
 process.on("unhandledRejection", console.dir);
 
+/**
+ * slepp specified milisec.
+ * @param {number} time - duration
+ * @returns {undefined} -
+ */
 async function sleep(time) {
   return new Promise((resolve)=>{
     setTimeout(()=>{
@@ -209,9 +214,9 @@ describe("test for SimpleBatchSystem", ()=>{
       expect(stub2).to.be.calledOnce;
       await batch.qwait(id1);
     });
-    it("should return false if id is not exist", async ()=>{
+    it("should return false if id is not exist", async()=>{
       const id = batch.qsub(stub);
-      expect(batch.qdel(id+"hoge")).to.be.false;
+      expect(batch.qdel(`${id}hoge`)).to.be.false;
       await batch.qwait(id);
     });
   });
@@ -224,7 +229,7 @@ describe("test for SimpleBatchSystem", ()=>{
       expect(batch.qstat(id)).to.equal("running");
       await batch.qwait(id);
     });
-    it("should return waiting for waiting job", async function (){
+    it("should return waiting for waiting job", async function() {
       this.timeout(4000); //eslint-disable-line no-invalid-this
       const id1 = batch.qsub(()=>{
         return sleep(1500).then(stub);
@@ -432,13 +437,13 @@ describe("test for SimpleBatchSystem", ()=>{
   describe("#clear", ()=>{
     it("should stop execution and clear all waiting job", async()=>{
       batch.stop();
-      const id1 = batch.qsub(()=>{
+      batch.qsub(()=>{
         return sleep(1000).then(stub);
       });
-      const id2 = batch.qsub(()=>{
+      batch.qsub(()=>{
         return sleep(1000).then(stub);
       });
-      const id3 = batch.qsub(()=>{
+      batch.qsub(()=>{
         return sleep(1000).then(stub);
       });
       expect(batch.size()).to.equal(3);
@@ -489,7 +494,7 @@ describe("test for SimpleBatchSystem", ()=>{
       const id3 = batch.qsub(sleep.bind(null, 1500));
       await sleep(1000);
       expect(batch.getRunning()).to.have.members([id1, id2, id3]);
-      await batch.qwaitAll([id1,id2,id3])
+      await batch.qwaitAll([id1, id2, id3]);
     });
   });
   describe("#start", ()=>{
@@ -612,7 +617,7 @@ describe("test for SimpleBatchSystem", ()=>{
       expect(stub).to.be.callCount(0);
       expect(stub2).to.be.callCount(1);
     });
-    it("should not retry if retry() returns true", async()=>{
+    it("should not retry if retry() returns false", async()=>{
       stub2.onCall(0).throws();
       stub2.onCall(1).rejects(new Error());
       stub2.onCall(2).resolves("hoge");
@@ -729,7 +734,7 @@ describe("test for SimpleBatchSystem", ()=>{
     it("should execute up to 3 parallel", async function() {
       this.timeout(10000); //eslint-disable-line no-invalid-this
       batch.maxConcurrent = 3;
-      const ids=[];
+      const ids = [];
       ids.push(batch.qsub(()=>{
         return sleep(1000).then(stub);
       }));
@@ -753,7 +758,7 @@ describe("test for SimpleBatchSystem", ()=>{
       batch.stop();
       await sleep(1500);
       expect(stub).to.be.callCount(3);
-      
+
       batch.start();
       await batch.qwaitAll(ids);
     });
