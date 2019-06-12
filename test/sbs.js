@@ -201,6 +201,14 @@ describe("test for SimpleBatchSystem", ()=>{
     });
   });
   describe("#qdel", ()=>{
+    it("should delete job which is waiting by qwait() and qwait will be resolved with removed", async()=>{
+      const id = batch.qsub(()=>{
+        return sleep(1000).then(stub);
+      });
+      const p = batch.qwait(id);
+      batch.qdel(id);
+      expect(await p).to.equal("removed");
+    });
     it("should delete job from queue", async()=>{
       const stub1 = sinon.stub();
       const stub2 = sinon.stub();
