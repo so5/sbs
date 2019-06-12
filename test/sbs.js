@@ -431,7 +431,7 @@ describe("test for SimpleBatchSystem", ()=>{
     });
     it("should get undefined from running or waiting job", ()=>{
       const id = batch.qsub(stub);
-      expect(batch.getResult(id)).to.be.an("undefined");
+      expect(batch.getResult(id)).to.be.null;
     });
   });
   describe("#clear", ()=>{
