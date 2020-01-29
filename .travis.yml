@@ -29,7 +29,7 @@ jobs:
   - os: windows
     node_js: 
     - lts/*
-    - stable
+      stable
   - os: linux
     node_js: lts
   - os: osx
