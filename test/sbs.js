@@ -493,6 +493,11 @@ describe("test for SimpleBatchSystem", ()=>{
     it("should rejected if job is illegal", async()=>{
       await expect(batch.qsubAndWait("hoge")).to.be.rejectedWith(Error, /job submit failed/);
     });
+    it("should rejected if job throw Error", async()=>{
+      await expect(batch.qsubAndWait(()=>{
+        throw new Error("job error");
+      })).to.be.rejectedWith(Error, /job erro/);
+    });
   });
   describe("#getRunning", ()=>{
     it("should return array of running job id", async()=>{
