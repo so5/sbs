@@ -27,7 +27,9 @@ jobs:
         tags: true
   exclude:
   - os: windows
-    node_js: lts/*
+    node_js: 
+    - lts/*
+    - stable
   - os: linux
     node_js: lts
   - os: osx
