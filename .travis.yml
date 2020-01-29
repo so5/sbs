@@ -20,8 +20,9 @@ jobs:
     script: echo deploy to npm
     deploy:
       provider: npm
+      skip_cleanup: true
       email: sogo@longtail-software.co.jp
-      api_token:
+      api_key:
         secure: IbiQCd5yXbdXpPumHXD5VFuy3ydQj6RXmtr8wYEjNcuy3EDmy26KDGuEAvJ5YAqT7l7A/GaeSYiyAFeJ6lYbAPc6oKkOc5OM9mTg9wFL0oXauQD2iBg1QoEO+Bqace/0UYWMgs80ujP5wEwO+kFLOYyVaeGXXptTFu1NEfnzGtfn01ef1T2BAJZ/La4Ww8F+q2auBx3Erx2kFGemOCKg0qfOZBh3iq+XMeibM/WZNeKS+Ji8CB26apIJr4LOgLZc6pZgcqYLuKVAErBn/YTiHL+HA2w+Sn3vIM9AUHujHM9xnMFmJDa8ylgXv6litG+hTEqZjFGnkzk9tqleUsSKXc53jVTVk6JQPuyDrLeBAKDWHWwqJTI6vlcTrhppgrK2aSOMJnmc6r92iyJbFKBLVhZ4vDaBR70iJQySJiRqVKwAdxLvu937QqRBMXGQmxqkXGQ6KGTkrmkcp9rHoVDQ7Rdd2jpoEBmlL7yp6EkBEWoZWB0+krYGxOrtROP0nfSUbKxgfPDQmBSooQRelWeZHMFl6WWovnhBbvp6y5S3S1HfJuNenRhZSWCyv1VLL8AnDGaIQQEbDCUMFnU/KswqBHCA15ks94BK+ULN8z1YlDMA4zDZj5OqLYMX/cqYXapVjMrWicZNh/HPeqNoTKe3R9ZOIbYattOW8uCxTJY71yY=
       on:
         tags: true
