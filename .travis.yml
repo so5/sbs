@@ -8,12 +8,8 @@ os:
 - linux
 - osx
 - windows
-matrix:
-  exclude:
-  - os: windows
-    node_js: stable
-after_success: npm run coverage
 
+after_success: npm run coverage
 jobs:
   include:
   - stage: npm publish
@@ -28,6 +24,9 @@ jobs:
       on:
         tags: true
       skip_cleanup: true
+  exclude:
+  - os: windows
+    node_js: stable
       
 notifications:
   mail: false
