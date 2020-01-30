@@ -19,6 +19,7 @@ jobs:
     os: linux
     script: echo deploy to npm
     deploy:
+      edge: true
       provider: npm
       cleanup: true
       email: sogo@longtail-software.co.jp
