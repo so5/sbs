@@ -1,6 +1,5 @@
 language: node_js
 node_js:
-- '8'
 - '10'
 - '12'
 - stable
@@ -36,7 +35,7 @@ jobs:
     node_js: lts
   - os: osx
     node_js: lts
-      
+
 notifications:
   email: false
   slack:
