@@ -10,43 +10,36 @@
     "test": "nyc --reporter=html --reporter=text mocha",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "check": "run-s lint test",
-    "postversion": "git push origin $(git describe --abbrev=0 --tags)"
+    "postversion": "git push origin $(git describe --abbrev=0 --tags)",
+    "prepare": "husky install"
   },
   "author": {
     "name": "Naoyuki Sogo"
   },
   "license": "MIT",
   "devDependencies": {
-    "ajv": "^6.11.0",
+    "ajv": "^8.12.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "coveralls": "^3.0.9",
     "cross-env": "^7.0.0",
-    "eslint": "^6.8.0",
-    "eslint-config-eslint": "^6.0.0",
-    "eslint-plugin-chai-expect": "^2.1.0",
-    "eslint-plugin-chai-friendly": "^0.6.0",
-    "eslint-plugin-jsdoc": "^22.0.0",
+    "eslint": "^8.45.0",
+    "eslint-config-eslint": "^8.0.0",
+    "eslint-plugin-chai-expect": "^3.0.0",
+    "eslint-plugin-chai-friendly": "^0.7.2",
+    "eslint-plugin-jsdoc": "^46.4.4",
     "eslint-plugin-node": "^11.0.0",
-    "jsdoc-to-markdown": "^6.0.1",
-    "husky": "^4.3.6",
-    "lint-staged": "^10.5.3",
-    "mocha": "^8.2.1",
+    "husky": "^8.0.0",
+    "lint-staged": "^13.2.3",
+    "mocha": "^10.2.0",
     "npm-run-all": "^4.1.5",
     "nyc": "^15.0.0",
-    "rewire": "^5.0.0",
-    "sinon": "^9.0.0",
+    "rewire": "^6.0.0",
+    "sinon": "^15.2.0",
     "sinon-chai": "^3.4.0"
   },
   "dependencies": {
     "debug": "^4.3.3",
-    "uuid": "^7.0.3"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "pre-push": "npm run test"
-    }
+    "uuid": "^9.0.0"
   },
   "lint-staged": {
     "*.js": "eslint --fix"
