@@ -11,7 +11,7 @@ const SBS = require("../lib/index");
 process.on("unhandledRejection", console.dir);
 
 /**
- * slepp specified milisec.
+ * sleep specified milisec.
  * @param {number} time - duration
  * @returns {undefined} -
  */

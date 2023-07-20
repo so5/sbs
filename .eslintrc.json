@@ -76,7 +76,7 @@
     "node/no-unsupported-features": [
       "error",
       {
-        "version": 8
+        "version": 10
       }
     ],
     "jsdoc/require-hyphen-before-param-description": ["warn", "always"],
