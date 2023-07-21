@@ -8,7 +8,7 @@
     "mocha": "mocha --recursive test",
     "lint": "eslint --fix lib test",
     "test": "nyc --reporter=html --reporter=text mocha",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "coverage": "nyc report --reporter=text-lcov > coverage-report.lcov",
     "check": "run-s lint test",
     "postversion": "git push origin $(git describe --abbrev=0 --tags)",
     "prepare": "husky install"
@@ -21,7 +21,6 @@
     "ajv": "^8.12.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "coveralls": "^3.1.1",
     "cross-env": "^7.0.0",
     "eslint": "^8.45.0",
     "eslint-config-eslint": "^8.0.0",
