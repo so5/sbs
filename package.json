@@ -1,6 +1,6 @@
 {
   "name": "simple-batch-system",
-  "version": "1.16.0",
+  "version": "1.16.1",
   "description": "simple batch system provides job schduler like async function queueing system.",
   "main": "lib/index.js",
   "repository": "github:so5/sbs",
