@@ -37,6 +37,7 @@ describe("test for SimpleBatchSystem", ()=>{
     it("should create with default value", ()=>{
       expect(batch.maxConcurrent).to.equal(1);
       expect(batch.exec).to.equal(null);
+      expect(batch.submitHook).to.equal(null);
     });
     it("should ignore non-number value or less or equal 0 for maxConcurrent", ()=>{
       batch = new SBS({ maxConcurrent: "hoge" });
@@ -731,7 +732,46 @@ describe("test for SimpleBatchSystem", ()=>{
       expect(stub2).to.be.callCount(2);
     });
   });
-  describe("job name feature(plese set DEBUG environment variable)", ()=>{
+  describe("submit hook", ()=>{
+    it("does not accept if submit hook returns falthy value", async ()=>{
+      batch = new SBS({
+        submitHook: ()=>{
+          return null;
+        }
+      });
+      expect(await batch.qsub(stub)).to.equal(null);
+      expect(stub).not.to.be.called;
+    });
+    it("accept if submit hook returns truthy value", async ()=>{
+      batch = new SBS({
+        submitHook: ()=>{
+          return 1;
+        }
+      });
+      const id = batch.qsub(stub);
+      await batch.qwait(id);
+      expect(stub).to.be.callCount(1);
+    });
+    it("can remove enqueued jobs in submit hook", async ()=>{
+      batch = new SBS({
+        submitHook: (queue)=>{
+          queue.clear();
+          return 1;
+        }
+      });
+      batch.stop();
+      batch.qsub(stub);
+      batch.qsub(stub);
+      batch.qsub(stub);
+      batch.qsub(stub);
+      batch.qsub(stub);
+      const id = batch.qsub(stub);
+      batch.start();
+      await batch.qwait(id);
+      expect(stub).to.be.callCount(1);
+    });
+  });
+  describe("job name feature(plese set DEBUG environment variable to check)", ()=>{
     it("should log with job's name", async ()=>{
       stub.onCall(0).throws();
       stub.onCall(1).rejects(new Error());
