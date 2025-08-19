@@ -28,6 +28,7 @@ jobs:
       - run: npm run test
       - run: npm run coverage
       - uses: actions/upload-artifact@v4
+        if: matrix.node-version == '22.x'
         with:
           name: code-coverage-report
           path: coverage-report.lcov
