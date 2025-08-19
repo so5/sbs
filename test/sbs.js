@@ -5,7 +5,7 @@ import SBS from "../lib/index.js";
 
 chai.use(chaiAsPromised);
 
-/* eslint-disable-next-line no-console */
+
 process.on("unhandledRejection", console.dir);
 
 /**
@@ -13,31 +13,31 @@ process.on("unhandledRejection", console.dir);
  * @param {number} time - duration
  * @returns {undefined} -
  */
-async function sleep (time) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
+async function sleep(time) {
+  return new Promise((resolve)=>{
+    setTimeout(()=>{
       resolve();
     }, time);
   });
 }
 
-describe("test for SimpleBatchSystem", () => {
+describe("test for SimpleBatchSystem", ()=>{
   let batch;
   let stub;
-  beforeEach(() => {
+  beforeEach(()=>{
     batch = new SBS();
     stub = sinon.stub().resolves("hoge");
   });
-  afterEach(() => {
+  afterEach(()=>{
     stub.reset();
   });
-  describe("#constructor", () => {
-    it("should create with default value", () => {
+  describe("#constructor", ()=>{
+    it("should create with default value", ()=>{
       expect(batch.maxConcurrent).to.equal(1);
       expect(batch.exec).to.equal(null);
       expect(batch.submitHook).to.equal(null);
     });
-    it("should ignore non-number value or less or equal 0 for maxConcurrent", () => {
+    it("should ignore non-number value or less or equal 0 for maxConcurrent", ()=>{
       batch = new SBS({ maxConcurrent: "hoge" });
       expect(batch.maxConcurrent).to.equal(1);
       batch = new SBS({ maxConcurrent: NaN });
@@ -53,13 +53,13 @@ describe("test for SimpleBatchSystem", () => {
       batch = new SBS({ maxConcurrent: 0 });
       expect(batch.maxConcurrent).to.equal(1);
     });
-    it("should set maxConcurrent by option object", () => {
+    it("should set maxConcurrent by option object", ()=>{
       batch = new SBS({ maxConcurrent: 10.3 });
       expect(batch.maxConcurrent).to.equal(10);
       batch = new SBS({ maxConcurrent: 21 });
       expect(batch.maxConcurrent).to.equal(21);
     });
-    it("should ignore non-number value or less or equal 0 for maxRetry", () => {
+    it("should ignore non-number value or less or equal 0 for maxRetry", ()=>{
       batch = new SBS({ maxRetry: "hoge" });
       expect(batch.maxRetry).to.be.a("null");
       batch = new SBS({ maxRetry: NaN });
@@ -75,13 +75,13 @@ describe("test for SimpleBatchSystem", () => {
       batch = new SBS({ maxRetry: 0 });
       expect(batch.maxRetry).to.be.a("null");
     });
-    it("should set maxRetry by option object", () => {
+    it("should set maxRetry by option object", ()=>{
       batch = new SBS({ maxRetry: 10.3 });
       expect(batch.maxRetry).to.equal(10);
       batch = new SBS({ maxRetry: 21 });
       expect(batch.maxRetry).to.equal(21);
     });
-    it("should ignore non-number value or less than 0 for retryDelay", () => {
+    it("should ignore non-number value or less than 0 for retryDelay", ()=>{
       batch = new SBS({ retryDelay: "hoge" });
       expect(batch.retryDelay).to.equal(0);
       batch = new SBS({ retryDelay: NaN });
@@ -95,13 +95,13 @@ describe("test for SimpleBatchSystem", () => {
       batch = new SBS({ retryDelay: -13 });
       expect(batch.retryDelay).to.equal(0);
     });
-    it("should set integer number retryDelay by option object", () => {
+    it("should set integer number retryDelay by option object", ()=>{
       batch = new SBS({ retryDelay: 10.3 });
       expect(batch.retryDelay).to.equal(10);
       batch = new SBS({ retryDelay: 21 });
       expect(batch.retryDelay).to.equal(21);
     });
-    it("should ignore non-number value or less than 0 for interval", () => {
+    it("should ignore non-number value or less than 0 for interval", ()=>{
       batch = new SBS({ interval: "hoge" });
       expect(batch.interval).to.equal(0);
       batch = new SBS({ interval: NaN });
@@ -115,13 +115,13 @@ describe("test for SimpleBatchSystem", () => {
       batch = new SBS({ interval: -13 });
       expect(batch.interval).to.equal(0);
     });
-    it("should set integer number interval by option object", () => {
+    it("should set integer number interval by option object", ()=>{
       batch = new SBS({ interval: 10.3 });
       expect(batch.interval).to.equal(10);
       batch = new SBS({ interval: 21 });
       expect(batch.interval).to.equal(21);
     });
-    it("should ignore non-function value for exec", () => {
+    it("should ignore non-function value for exec", ()=>{
       batch = new SBS({ exec: "hoge" });
       expect(batch.exec).to.be.a("null");
       batch = new SBS({ exec: NaN });
@@ -135,16 +135,16 @@ describe("test for SimpleBatchSystem", () => {
       batch = new SBS({ exec: {} });
       expect(batch.exec).to.be.a("null");
     });
-    it("should set function for exec", () => {
+    it("should set function for exec", ()=>{
       batch = new SBS({ exec: stub });
       batch.exec();
       expect(stub.calledOnce).to.be.true;
     });
-    it("should set label for logging", () => {
+    it("should set label for logging", ()=>{
       batch = new SBS({ name: "hoge" });
       expect(batch.name).to.equal("hoge");
     });
-    it("should not execute anything until start() called with noAutoStart=true", async () => {
+    it("should not execute anything until start() called with noAutoStart=true", async ()=>{
       batch = new SBS({ noAutoStart: true });
       const id = batch.qsub(stub);
       expect(batch.qstat(id)).to.equal("waiting");
@@ -153,43 +153,43 @@ describe("test for SimpleBatchSystem", () => {
       expect(stub.calledOnce).to.be.true;
     });
   });
-  describe("#qsub", () => {
-    it("should accept function", async () => {
+  describe("#qsub", ()=>{
+    it("should accept function", async ()=>{
       const id = batch.qsub(stub);
       await batch.qwait(id);
       expect(stub.calledOnce).to.be.true;
     });
-    it("should accept object with exec and args property", async () => {
+    it("should accept object with exec and args property", async ()=>{
       const id = batch.qsub({ exec: stub, args: "huga" });
       await batch.qwait(id);
       expect(stub.calledWith("huga")).to.be.true;
     });
-    it("should accept object with name property", async () => {
+    it("should accept object with name property", async ()=>{
       const id = batch.qsub({ exec: stub, args: "huga", name: "piyo" });
       await batch.qwait(id);
       expect(stub.calledWith("huga")).to.be.true;
     });
-    it("should accept just argument object if default executer is set", async () => {
+    it("should accept just argument object if default executer is set", async ()=>{
       batch.exec = stub;
       const id = batch.qsub("foo");
       await batch.qwait(id);
       expect(stub.callCount).to.equal(1);
       expect(stub.getCall(0).calledWith("foo")).to.be.true;
     });
-    it("should accept object which only has argument property if default executer is set", async () => {
+    it("should accept object which only has argument property if default executer is set", async ()=>{
       batch.exec = stub;
       const id = batch.qsub({ args: "bar" });
       await batch.qwait(id);
       expect(stub.callCount).to.equal(1);
       expect(stub.getCall(0).calledWith("bar")).to.be.true;
     });
-    it("should ignore non-function argument if default executer is not set", () => {
+    it("should ignore non-function argument if default executer is not set", ()=>{
       batch.stop();
       expect(batch.qsub("foo")).to.be.a("null");
       expect(batch.qsub({ args: "bar" })).to.be.a("null");
       expect(batch.queue.size()).to.equal(0);
     });
-    it("should ignore non-function job.exec", () => {
+    it("should ignore non-function job.exec", ()=>{
       batch.stop();
       batch.exec = stub;
       expect(batch.qsub({ exec: "bar" })).to.be.a("null");
@@ -199,16 +199,16 @@ describe("test for SimpleBatchSystem", () => {
       expect(batch.queue.size()).to.equal(0);
     });
   });
-  describe("#qdel", () => {
-    it("should delete job which is waiting by qwait() and qwait will be resolved with removed", async () => {
-      const id = batch.qsub(() => {
+  describe("#qdel", ()=>{
+    it("should delete job which is waiting by qwait() and qwait will be resolved with removed", async ()=>{
+      const id = batch.qsub(()=>{
         return sleep(1000).then(stub);
       });
       const p = batch.qwait(id);
       batch.qdel(id);
       expect(await p).to.equal("removed");
     });
-    it("should delete job from queue", async () => {
+    it("should delete job from queue", async ()=>{
       const stub1 = sinon.stub();
       const stub2 = sinon.stub();
       batch.stop();
@@ -221,63 +221,63 @@ describe("test for SimpleBatchSystem", () => {
       expect(stub2.calledOnce).to.be.true;
       await batch.qwait(id1);
     });
-    it("should return false if id is not exist", async () => {
+    it("should return false if id is not exist", async ()=>{
       const id = batch.qsub(stub);
       expect(batch.qdel(`${id}hoge`)).to.be.false;
       await batch.qwait(id);
     });
   });
-  describe("#qstat", () => {
-    it("should return running for running job", async () => {
-      const id = batch.qsub(() => {
+  describe("#qstat", ()=>{
+    it("should return running for running job", async ()=>{
+      const id = batch.qsub(()=>{
         return sleep(1000).then(stub);
       });
       await sleep(400);
       expect(batch.qstat(id)).to.equal("running");
       await batch.qwait(id);
     });
-    it("should return waiting for waiting job", async function () {
-      this.timeout(4000); // eslint-disable-line no-invalid-this
-      const id1 = batch.qsub(() => {
+    it("should return waiting for waiting job", async function() {
+      this.timeout(4000);
+      const id1 = batch.qsub(()=>{
         return sleep(1500).then(stub);
       });
-      const id2 = batch.qsub(() => {
+      const id2 = batch.qsub(()=>{
         return sleep(1500).then(stub);
       });
       expect(batch.qstat(id2)).to.equal("waiting");
       await batch.qwaitAll([id1, id2]);
     });
-    it("should return failed if job was rejcted", async () => {
+    it("should return failed if job was rejcted", async ()=>{
       stub.onCall(0).rejects();
       const id = batch.qsub(stub);
-      await batch.qwait(id).catch(() => {});
+      await batch.qwait(id).catch(()=>{});
       expect(batch.qstat(id)).to.equal("failed");
     });
-    it("should return failed if job throwed exception", async () => {
+    it("should return failed if job throwed exception", async ()=>{
       stub.onCall(0).throws();
       const id = batch.qsub(stub);
-      await batch.qwait(id).catch(() => {});
+      await batch.qwait(id).catch(()=>{});
       expect(batch.qstat(id)).to.equal("failed");
     });
-    it("should return finished for finished job", async () => {
+    it("should return finished for finished job", async ()=>{
       const id = batch.qsub(stub);
       await batch.qwait(id);
       expect(batch.qstat(id)).to.equal("finished");
     });
-    it("should return removed for non-existing job", () => {
+    it("should return removed for non-existing job", ()=>{
       expect(batch.qstat("hoge")).to.equal("removed");
     });
-    it("should return null if non-string argument is passed", () => {
-      expect(batch.qstat(() => {})).to.be.a("null");
+    it("should return null if non-string argument is passed", ()=>{
+      expect(batch.qstat(()=>{})).to.be.a("null");
       expect(batch.qstat(1)).to.be.a("null");
       expect(batch.qstat([])).to.be.a("null");
       expect(batch.qstat({})).to.be.a("null");
       expect(batch.qstat(true)).to.be.a("null");
     });
   });
-  describe("#qwait", () => {
-    it("should just wait if job is not started", async () => {
-      const id1 = batch.qsub(() => {
+  describe("#qwait", ()=>{
+    it("should just wait if job is not started", async ()=>{
+      const id1 = batch.qsub(()=>{
         return sleep(500).then(stub);
       });
       const id2 = batch.qsub(stub);
@@ -285,8 +285,8 @@ describe("test for SimpleBatchSystem", () => {
       expect(stub.callCount).to.equal(2);
       await batch.qwait(id1);
     });
-    it("should just wait if job is running", async () => {
-      const id1 = batch.qsub(() => {
+    it("should just wait if job is running", async ()=>{
+      const id1 = batch.qsub(()=>{
         return sleep(500).then(stub);
       });
       const id2 = batch.qsub(stub);
@@ -295,32 +295,32 @@ describe("test for SimpleBatchSystem", () => {
       await batch.qwait(id2);
       expect(stub.callCount).to.equal(2);
     });
-    it("should return result if job is already finished", async () => {
+    it("should return result if job is already finished", async ()=>{
       const id = batch.qsub(stub.resolves("huga"));
       await sleep(100);
       const result = await batch.qwait(id);
       expect(stub.callCount).to.equal(1);
       expect(result).to.be.equal("huga");
     });
-    it("should be rejected with result if job is already failed", async () => {
+    it("should be rejected with result if job is already failed", async ()=>{
       const id = batch.qsub(stub.throws("huga"));
       await sleep(100);
       await expect(batch.qwait(id)).to.be.rejectedWith(Error);
     });
-    it("should return 'removed' if job is already removed", async () => {
+    it("should return 'removed' if job is already removed", async ()=>{
       const id = batch.qsub(stub);
       batch.qdel(id);
       expect(await batch.qwait(id)).to.equal("removed");
     });
-    it("should return 'removed' if job is deleted while waiting", async () => {
+    it("should return 'removed' if job is deleted while waiting", async ()=>{
       batch.stop();
       const id = batch.qsub(stub);
       batch.qdel(id);
       batch.start();
       expect(await batch.qwait(id)).to.equal("removed");
     });
-    it("should return each promise for multi call", async () => {
-      const id1 = batch.qsub(() => {
+    it("should return each promise for multi call", async ()=>{
+      const id1 = batch.qsub(()=>{
         return sleep(500).then(stub);
       });
       const id2 = batch.qsub(stub);
@@ -332,34 +332,34 @@ describe("test for SimpleBatchSystem", () => {
       await batch.qwait(id1);
     });
   });
-  describe("#qwaitAll", () => {
-    it("should just wait if job is waiting or running", async () => {
-      const id1 = batch.qsub(() => {
+  describe("#qwaitAll", ()=>{
+    it("should just wait if job is waiting or running", async ()=>{
+      const id1 = batch.qsub(()=>{
         return sleep(500).then(stub);
       });
-      const id2 = batch.qsub(() => {
+      const id2 = batch.qsub(()=>{
         return sleep(500).then(stub);
       });
       await batch.qwaitAll([id1, id2]);
       expect(stub.callCount).to.equal(2);
     });
-    it("should rejected if one of jobs rejected", () => {
+    it("should rejected if one of jobs rejected", ()=>{
       stub.onCall(1).rejects(new Error("huga"));
       const id1 = batch.qsub(stub);
       const id2 = batch.qsub(stub);
       return expect(batch.qwaitAll([id1, id2])).to.be.rejectedWith("huga");
     });
-    it("should rejected if one of jobs throws", () => {
+    it("should rejected if one of jobs throws", ()=>{
       stub.onCall(1).throws(new Error("huga"));
       const id1 = batch.qsub(stub);
       const id2 = batch.qsub(stub);
       return expect(batch.qwaitAll([id1, id2])).to.be.rejectedWith("huga");
     });
   });
-  describe("#getResult", () => {
-    it("should get resolved value from finished job", (done) => {
+  describe("#getResult", ()=>{
+    it("should get resolved value from finished job", (done)=>{
       const id = batch.qsub(stub);
-      const timeout = setInterval(() => {
+      const timeout = setInterval(()=>{
         const state = batch.qstat(id);
         if (state === "finished" || state === "failed") {
           clearTimeout(timeout);
@@ -369,10 +369,10 @@ describe("test for SimpleBatchSystem", () => {
         }
       }, 100);
     });
-    it("should get resolved value from finished job and keep it with opt.noAutoclear", (done) => {
+    it("should get resolved value from finished job and keep it with opt.noAutoclear", (done)=>{
       batch.noAutoClear = true;
       const id = batch.qsub(stub);
-      const timeout = setInterval(() => {
+      const timeout = setInterval(()=>{
         const state = batch.qstat(id);
         if (state === "finished" || state === "failed") {
           clearTimeout(timeout);
@@ -382,9 +382,9 @@ describe("test for SimpleBatchSystem", () => {
         }
       }, 100);
     });
-    it("should get resolved value from finished job and keep it if keep argument is true", (done) => {
+    it("should get resolved value from finished job and keep it if keep argument is true", (done)=>{
       const id = batch.qsub(stub);
-      const timeout = setInterval(() => {
+      const timeout = setInterval(()=>{
         const state = batch.qstat(id);
         if (state === "finished" || state === "failed") {
           clearTimeout(timeout);
@@ -394,10 +394,10 @@ describe("test for SimpleBatchSystem", () => {
         }
       }, 100);
     });
-    it("should get err object from failed job", (done) => {
+    it("should get err object from failed job", (done)=>{
       stub.rejects(new Error("huga"));
       const id = batch.qsub(stub);
-      const timeout = setInterval(() => {
+      const timeout = setInterval(()=>{
         const state = batch.qstat(id);
         if (state === "finished" || state === "failed") {
           clearTimeout(timeout);
@@ -409,11 +409,11 @@ describe("test for SimpleBatchSystem", () => {
         }
       }, 100);
     });
-    it("should get err object from failed job and keep it with opt.noAutoclear", (done) => {
+    it("should get err object from failed job and keep it with opt.noAutoclear", (done)=>{
       stub = stub.rejects("hoge");
       batch.noAutoClear = true;
       const id = batch.qsub(stub);
-      const timeout = setInterval(() => {
+      const timeout = setInterval(()=>{
         const state = batch.qstat(id);
         if (state === "finished" || state === "failed") {
           clearTimeout(timeout);
@@ -423,10 +423,10 @@ describe("test for SimpleBatchSystem", () => {
         }
       }, 100);
     });
-    it("should get err object from failed job and keep it if keep argument is true", (done) => {
+    it("should get err object from failed job and keep it if keep argument is true", (done)=>{
       stub = stub.rejects("hoge");
       const id = batch.qsub(stub);
-      const timeout = setInterval(() => {
+      const timeout = setInterval(()=>{
         const state = batch.qstat(id);
         if (state === "finished" || state === "failed") {
           clearTimeout(timeout);
@@ -436,21 +436,21 @@ describe("test for SimpleBatchSystem", () => {
         }
       }, 100);
     });
-    it("should get undefined from running or waiting job", () => {
+    it("should get undefined from running or waiting job", ()=>{
       const id = batch.qsub(stub);
       expect(batch.getResult(id)).to.be.null;
     });
   });
-  describe("#clear", () => {
-    it("should stop execution and clear all waiting job", async () => {
+  describe("#clear", ()=>{
+    it("should stop execution and clear all waiting job", async ()=>{
       batch.stop();
-      batch.qsub(() => {
+      batch.qsub(()=>{
         return sleep(1000).then(stub);
       });
-      batch.qsub(() => {
+      batch.qsub(()=>{
         return sleep(1000).then(stub);
       });
-      batch.qsub(() => {
+      batch.qsub(()=>{
         return sleep(1000).then(stub);
       });
       expect(batch.size()).to.equal(3);
@@ -458,8 +458,8 @@ describe("test for SimpleBatchSystem", () => {
       expect(batch.size()).to.equal(0);
       expect(stub.called).to.be.false;
     });
-    it("should resolve with 'removed' if batch is cleared while running", async () => {
-      const id1 = batch.qsub(() => {
+    it("should resolve with 'removed' if batch is cleared while running", async ()=>{
+      const id1 = batch.qsub(()=>{
         return sleep(1000).then(stub);
       });
       const p1 = batch.qwait(id1);
@@ -467,8 +467,8 @@ describe("test for SimpleBatchSystem", () => {
       expect(await p1).to.equal("removed");
     });
   });
-  describe("#clearResults", () => {
-    it("should clear finished and failed jobs", async () => {
+  describe("#clearResults", ()=>{
+    it("should clear finished and failed jobs", async ()=>{
       stub.onCall(0).rejects();
       stub.onCall(1).resolves();
       const id1 = batch.qsub(stub);
@@ -481,25 +481,25 @@ describe("test for SimpleBatchSystem", () => {
       await expect(batch.qwait(id2)).to.be.fulfilled;
     });
   });
-  describe("#qsubAndWait", () => {
-    it("should submit job and wait until it finished or failed", async () => {
+  describe("#qsubAndWait", ()=>{
+    it("should submit job and wait until it finished or failed", async ()=>{
       stub.onCall(1).rejects("huga");
       await Promise.all([
         expect(batch.qsubAndWait(stub)).to.become("hoge"),
         expect(batch.qsubAndWait(stub)).to.be.rejectedWith(Error)
       ]);
     });
-    it("should rejected if job is illegal", async () => {
+    it("should rejected if job is illegal", async ()=>{
       await expect(batch.qsubAndWait("hoge")).to.be.rejectedWith(Error, /job submit failed/);
     });
-    it("should rejected if job throw Error", async () => {
-      await expect(batch.qsubAndWait(() => {
+    it("should rejected if job throw Error", async ()=>{
+      await expect(batch.qsubAndWait(()=>{
         throw new Error("job error");
       })).to.be.rejectedWith(Error, /job erro/);
     });
   });
-  describe("#getRunning", () => {
-    it("should return array of running job id", async () => {
+  describe("#getRunning", ()=>{
+    it("should return array of running job id", async ()=>{
       batch.maxConcurrent = 3;
       const id1 = batch.qsub(sleep.bind(null, 1500));
       const id2 = batch.qsub(sleep.bind(null, 1500));
@@ -509,12 +509,12 @@ describe("test for SimpleBatchSystem", () => {
       await batch.qwaitAll([id1, id2, id3]);
     });
   });
-  describe("#start", () => {
-    it("should do nothing if start called while queue is already running", async () => {
+  describe("#start", ()=>{
+    it("should do nothing if start called while queue is already running", async ()=>{
       batch.start();
       expect(await batch.qsubAndWait(stub)).to.equal("hoge");
     });
-    it("should do nothing if stop called when queue is already stopped", async () => {
+    it("should do nothing if stop called when queue is already stopped", async ()=>{
       batch.stop();
       batch.stop();
       const p = batch.qsubAndWait(stub);
@@ -522,15 +522,15 @@ describe("test for SimpleBatchSystem", () => {
       expect(await p).to.equal("hoge");
     });
   });
-  describe("retry functionality", () => {
+  describe("retry functionality", ()=>{
     const stub2 = sinon.stub();
-    beforeEach(() => {
+    beforeEach(()=>{
       stub2.reset();
     });
-    it("should not retry after exception occurred by default", async () => {
+    it("should not retry after exception occurred by default", async ()=>{
       stub2.onCall(0).throws(new Error("hoge"));
       stub2.onCall(1).returns();
-      const id = batch.qsub(() => {
+      const id = batch.qsub(()=>{
         return stub2().then(stub);
       });
       try {
@@ -540,21 +540,21 @@ describe("test for SimpleBatchSystem", () => {
         expect(stub.called).to.be.false;
       }
     });
-    it("should not retry after rejected by default", async () => {
+    it("should not retry after rejected by default", async ()=>{
       stub2.onCall(0).rejects();
       stub2.onCall(1).returns();
-      const id = batch.qsub(() => {
+      const id = batch.qsub(()=>{
         return stub2().then(stub);
       });
-      await batch.qwait(id).catch(() => {});
+      await batch.qwait(id).catch(()=>{});
       expect(stub.called).to.be.false;
     });
-    it("should retry if retry = true", async () => {
+    it("should retry if retry = true", async ()=>{
       stub2.onCall(0).throws();
       stub2.onCall(1).rejects(new Error());
       stub2.onCall(2).resolves("hoge");
 
-      const exec = () => {
+      const exec = ()=>{
         return stub2().then(stub);
       };
       const id = batch.qsub({ exec, retry: true });
@@ -562,15 +562,15 @@ describe("test for SimpleBatchSystem", () => {
       expect(stub.callCount).to.equal(1);
       expect(stub2.callCount).to.equal(3);
     });
-    it("should retry if retry() returns true", async () => {
+    it("should retry if retry() returns true", async ()=>{
       stub2.onCall(0).throws();
       stub2.onCall(1).rejects(new Error());
       stub2.onCall(2).resolves("hoge");
 
-      const exec = () => {
+      const exec = ()=>{
         return stub2().then(stub);
       };
-      const retry = (err) => {
+      const retry = (err)=>{
         return err instanceof Error;
       };
       const id = batch.qsub({
@@ -581,12 +581,12 @@ describe("test for SimpleBatchSystem", () => {
       expect(stub.callCount).to.equal(1);
       expect(stub2.callCount).to.equal(3);
     });
-    it("should retry if opt.retry = true", async () => {
+    it("should retry if opt.retry = true", async ()=>{
       stub2.onCall(0).throws();
       stub2.onCall(1).rejects(new Error());
       stub2.onCall(2).resolves("hoge");
 
-      const exec = () => {
+      const exec = ()=>{
         return stub2().then(stub);
       };
       batch.retry = true;
@@ -595,15 +595,15 @@ describe("test for SimpleBatchSystem", () => {
       expect(stub.callCount).to.equal(1);
       expect(stub2.callCount).to.equal(3);
     });
-    it("should retry if opt.retry() returns true", async () => {
+    it("should retry if opt.retry() returns true", async ()=>{
       stub2.onCall(0).throws();
       stub2.onCall(1).rejects(new Error());
       stub2.onCall(2).resolves("hoge");
 
-      const exec = () => {
+      const exec = ()=>{
         return stub2().then(stub);
       };
-      const retry = (err) => {
+      const retry = (err)=>{
         return err instanceof Error;
       };
       batch = new SBS({ retry: true });
@@ -616,28 +616,28 @@ describe("test for SimpleBatchSystem", () => {
       expect(stub2.callCount).to.equal(3);
     });
 
-    it("should not retry if retry = false", async () => {
+    it("should not retry if retry = false", async ()=>{
       stub2.onCall(0).throws();
       stub2.onCall(1).rejects(new Error());
       stub2.onCall(2).resolves("hoge");
 
-      const exec = () => {
+      const exec = ()=>{
         return stub2().then(stub);
       };
       const id = batch.qsub({ exec, retry: false });
-      await batch.qwait(id).catch(() => {});
+      await batch.qwait(id).catch(()=>{});
       expect(stub.callCount).to.equal(0);
       expect(stub2.callCount).to.equal(1);
     });
-    it("should not retry if retry() returns false", async () => {
+    it("should not retry if retry() returns false", async ()=>{
       stub2.onCall(0).throws();
       stub2.onCall(1).rejects(new Error());
       stub2.onCall(2).resolves("hoge");
 
-      const exec = () => {
+      const exec = ()=>{
         return stub2().then(stub);
       };
-      const retry = () => {
+      const retry = ()=>{
         return false;
       };
       batch = new SBS({ retry });
@@ -645,42 +645,42 @@ describe("test for SimpleBatchSystem", () => {
         exec,
         retry
       });
-      await batch.qwait(id).catch(() => {});
+      await batch.qwait(id).catch(()=>{});
       expect(stub.callCount).to.equal(0);
       expect(stub2.callCount).to.equal(1);
     });
-    it("should not retry if opt.retry = false", async () => {
+    it("should not retry if opt.retry = false", async ()=>{
       stub2.onCall(0).throws();
       stub2.onCall(1).rejects(new Error());
       stub2.onCall(2).resolves("hoge");
 
-      const exec = () => {
+      const exec = ()=>{
         return stub2().then(stub);
       };
       batch.retry = false;
       const id = batch.qsub({ exec });
-      await batch.qwait(id).catch(() => {});
+      await batch.qwait(id).catch(()=>{});
       expect(stub.callCount).to.equal(0);
       expect(stub2.callCount).to.equal(1);
     });
-    it("should not retry if opt.retry() returns false", async () => {
+    it("should not retry if opt.retry() returns false", async ()=>{
       stub2.onCall(0).throws();
       stub2.onCall(1).rejects(new Error());
       stub2.onCall(2).resolves("hoge");
 
-      const exec = () => {
+      const exec = ()=>{
         return stub2().then(stub);
       };
-      const retry = () => {
+      const retry = ()=>{
         return false;
       };
       batch.retry = retry;
       const id = batch.qsub({ exec });
-      await batch.qwait(id).catch(() => {});
+      await batch.qwait(id).catch(()=>{});
       expect(stub.callCount).to.equal(0);
       expect(stub2.callCount).to.equal(1);
     });
-    it("should not retry if maxRetry exceeded", async () => {
+    it("should not retry if maxRetry exceeded", async ()=>{
       batch.maxRetry = 3;
       batch.retry = true;
       stub2.onCall(0).throws();
@@ -688,7 +688,7 @@ describe("test for SimpleBatchSystem", () => {
       stub2.onCall(2).rejects();
       stub2.onCall(3).rejects(new Error("huga"));
       stub2.onCall(4).rejects(new Error("hoge"));
-      const id = batch.qsub(async () => {
+      const id = batch.qsub(async ()=>{
         await stub2();
         return stub();
       });
@@ -701,16 +701,16 @@ describe("test for SimpleBatchSystem", () => {
       expect(stub.callCount).to.equal(0);
       expect(stub2.callCount).to.equal(4);
     });
-    it("should retry with delay", async () => {
+    it("should retry with delay", async ()=>{
       stub2.onCall(0).throws();
       stub2.onCall(1).resolves();
       const id = batch.qsub({ exec: stub2, retryDelay: 1000, retry: true });
       batch.qsub(stub);
-      await batch.qwait(id).catch(() => {});
+      await batch.qwait(id).catch(()=>{});
       expect(stub.callCount).to.equal(0);
       expect(stub2.callCount).to.equal(2);
     });
-    it("should retry later if retryLater is true", async () => {
+    it("should retry later if retryLater is true", async ()=>{
       batch.retryLater = true;
       stub2.onCall(0).throws();
       stub2.onCall(1).resolves();
@@ -720,7 +720,7 @@ describe("test for SimpleBatchSystem", () => {
       expect(stub.callCount).to.equal(1);
       expect(stub2.callCount).to.equal(2);
     });
-    it("should retry later if job.retryLater is true", async () => {
+    it("should retry later if job.retryLater is true", async ()=>{
       stub2.onCall(0).throws();
       stub2.onCall(1).resolves();
       const id = batch.qsub({ exec: stub2, retryDelay: 1000, retry: true, retryLater: true });
@@ -730,19 +730,19 @@ describe("test for SimpleBatchSystem", () => {
       expect(stub2.callCount).to.equal(2);
     });
   });
-  describe("submit hook", () => {
-    it("does not accept if submit hook returns falthy value", async () => {
+  describe("submit hook", ()=>{
+    it("does not accept if submit hook returns falthy value", async ()=>{
       batch = new SBS({
-        submitHook: () => {
+        submitHook: ()=>{
           return null;
         }
       });
       expect(await batch.qsub(stub)).to.equal(null);
       expect(stub.called).to.be.false;
     });
-    it("accept if submit hook returns truthy value", async () => {
+    it("accept if submit hook returns truthy value", async ()=>{
       batch = new SBS({
-        submitHook: () => {
+        submitHook: ()=>{
           return 1;
         }
       });
@@ -750,9 +750,9 @@ describe("test for SimpleBatchSystem", () => {
       await batch.qwait(id);
       expect(stub.callCount).to.equal(1);
     });
-    it("can remove enqueued jobs in submit hook", async () => {
+    it("can remove enqueued jobs in submit hook", async ()=>{
       batch = new SBS({
-        submitHook: (queue) => {
+        submitHook: (queue)=>{
           queue.clear();
           return 1;
         }
@@ -769,8 +769,8 @@ describe("test for SimpleBatchSystem", () => {
       expect(stub.callCount).to.equal(1);
     });
   });
-  describe("job name feature(plese set DEBUG environment variable to check)", () => {
-    it("should log with job's name", async () => {
+  describe("job name feature(plese set DEBUG environment variable to check)", ()=>{
+    it("should log with job's name", async ()=>{
       stub.onCall(0).throws();
       stub.onCall(1).rejects(new Error());
       stub.onCall(2).resolves("hoge");
@@ -781,27 +781,27 @@ describe("test for SimpleBatchSystem", () => {
       expect(stub.callCount).to.equal(3);
     });
   });
-  describe("parallel execution", () => {
-    it("should execute up to 3 parallel", async function () {
-      this.timeout(10000); // eslint-disable-line no-invalid-this
+  describe("parallel execution", ()=>{
+    it("should execute up to 3 parallel", async function() {
+      this.timeout(10000);
       batch.maxConcurrent = 3;
       const ids = [];
-      ids.push(batch.qsub(() => {
+      ids.push(batch.qsub(()=>{
         return sleep(1000).then(stub);
       }));
-      ids.push(batch.qsub(() => {
+      ids.push(batch.qsub(()=>{
         return sleep(1000).then(stub);
       }));
-      ids.push(batch.qsub(() => {
+      ids.push(batch.qsub(()=>{
         return sleep(1000).then(stub);
       }));
-      ids.push(batch.qsub(() => {
+      ids.push(batch.qsub(()=>{
         return sleep(1000).then(stub);
       }));
-      ids.push(batch.qsub(() => {
+      ids.push(batch.qsub(()=>{
         return sleep(1000).then(stub);
       }));
-      ids.push(batch.qsub(() => {
+      ids.push(batch.qsub(()=>{
         return sleep(1000).then(stub);
       }));
       expect(batch.size()).to.equal(6);
@@ -813,22 +813,22 @@ describe("test for SimpleBatchSystem", () => {
       batch.start();
       await batch.qwaitAll(ids);
     });
-    it("should execute in order of submitted", async () => {
+    it("should execute in order of submitted", async ()=>{
       const ids = [];
       ids.push(
-        batch.qsub(async () => {
+        batch.qsub(async ()=>{
           await sleep(100);
           await stub("foo");
         })
       );
       ids.push(
-        batch.qsub(async () => {
+        batch.qsub(async ()=>{
           await sleep(10);
           await stub("bar");
         })
       );
       ids.push(
-        batch.qsub(async () => {
+        batch.qsub(async ()=>{
           await stub("baz");
         })
       );
