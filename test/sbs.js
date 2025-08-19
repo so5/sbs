@@ -645,6 +645,7 @@ describe("test for SimpleBatchSystem", ()=>{
         retry
       });
       await batch.qwait(id).catch(()=>{});
+
       expect(stub.callCount).to.equal(0);
       expect(stub2.callCount).to.equal(1);
     });
