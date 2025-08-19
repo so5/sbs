@@ -101,6 +101,14 @@ const styleRules = {
         "while"
       ]
     }
+  ],
+  "@stylistic/quotes": [
+    "error",
+    "double"
+  ],
+  "@stylistic/semi": [
+    "error",
+    "always"
   ]
 };
 
@@ -124,8 +132,17 @@ export default [
     ignores: ["coverage-report.lcov", "node_modules/"]
   },
   js.configs.recommended,
-  stylistic.configs.recommended,
   {
+    plugins: {
+      "@stylistic": stylistic
+    }
+  },
+  // Lib configuration
+  {
+    files: ["lib/**/*.js"],
+    plugins: {
+      jsdoc
+    },
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
@@ -136,23 +153,6 @@ export default [
     },
     rules: {
       ...styleRules,
-      "@stylistic/quotes": [
-        "error",
-        "double"
-      ],
-      "@stylistic/semi": [
-        "error",
-        "always"
-      ]
-    }
-  },
-  // Lib configuration
-  {
-    files: ["lib/**/*.js"],
-    plugins: {
-      jsdoc
-    },
-    rules: {
       ...jsdocRules
     }
   },
@@ -164,11 +164,16 @@ export default [
       "chai-expect": eslintPluginChaiExpect
     },
     languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
       globals: {
+        ...globals.es2021,
+        ...globals.node,
         ...globals.mocha
       }
     },
     rules: {
+      ...styleRules,
       "no-unused-expressions": "off",
       "chai-friendly/no-unused-expressions": "error"
     }

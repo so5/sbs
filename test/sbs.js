@@ -5,6 +5,7 @@ import SBS from "../lib/index.js";
 
 chai.use(chaiAsPromised);
 
+
 process.on("unhandledRejection", console.dir);
 
 /**
@@ -235,7 +236,7 @@ describe("test for SimpleBatchSystem", ()=>{
       expect(batch.qstat(id)).to.equal("running");
       await batch.qwait(id);
     });
-    it("should return waiting for waiting job", async function () {
+    it("should return waiting for waiting job", async function() {
       this.timeout(4000);
       const id1 = batch.qsub(()=>{
         return sleep(1500).then(stub);
@@ -645,7 +646,6 @@ describe("test for SimpleBatchSystem", ()=>{
         retry
       });
       await batch.qwait(id).catch(()=>{});
-
       expect(stub.callCount).to.equal(0);
       expect(stub2.callCount).to.equal(1);
     });
@@ -782,7 +782,7 @@ describe("test for SimpleBatchSystem", ()=>{
     });
   });
   describe("parallel execution", ()=>{
-    it("should execute up to 3 parallel", async function () {
+    it("should execute up to 3 parallel", async function() {
       this.timeout(10000);
       batch.maxConcurrent = 3;
       const ids = [];
