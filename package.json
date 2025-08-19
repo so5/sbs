@@ -8,8 +8,8 @@
   "scripts": {
     "mocha": "mocha \"test/**/*.js\"",
     "lint": "eslint --fix lib test",
-    "test": "mocha \"test/**/*.js\"",
-    "coverage": "nyc report --reporter=text-lcov > coverage-report.lcov",
+    "test": "c8 mocha \"test/**/*.js\"",
+    "coverage": "c8 report --reporter=text-lcov > coverage-report.lcov",
     "postversion": "git push origin $(git describe --abbrev=0 --tags)",
     "prepare": "husky"
   },
@@ -21,6 +21,7 @@
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.33.0",
     "ajv": "^8.17.1",
+    "c8": "^10.1.2",
     "chai": "4.3.10",
     "chai-as-promised": "^7.1.1",
     "eslint-config-standard": "^17.1.0",
