@@ -1,13 +1,14 @@
 {
   "name": "simple-batch-system",
-  "version": "1.20.0",
+  "version": "2.0.0",
   "description": "simple batch system provides job schduler like async function queueing system.",
+  "type": "module",
   "main": "lib/index.js",
   "repository": "github:so5/sbs",
   "scripts": {
-    "mocha": "mocha --recursive test",
+    "mocha": "mocha \"test/**/*.js\"",
     "lint": "eslint --fix lib test",
-    "test": "nyc --reporter=html --reporter=text mocha",
+    "test": "cross-env 'NODE_OPTIONS=--experimental-loader @istanbuljs/esm-loader-hook' nyc --reporter=html --reporter=text mocha \"test/**/*.js\"",
     "coverage": "nyc report --reporter=text-lcov > coverage-report.lcov",
     "postversion": "git push origin $(git describe --abbrev=0 --tags)",
     "prepare": "husky install"
@@ -17,6 +18,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@istanbuljs/esm-loader-hook": "^0.3.0",
     "ajv": "^8.12.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",

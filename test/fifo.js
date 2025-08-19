@@ -1,7 +1,5 @@
-"use strict";
-const { expect } = require("chai");
-
-const FIFO = require("../lib/fifo");
+import { expect } from "chai";
+import FIFO from "../lib/fifo.js";
 
 let q = null;
 

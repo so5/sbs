@@ -1,11 +1,11 @@
-"use strict";
-const chai = require("chai");
-const { expect } = require("chai");
-const sinon = require("sinon");
-chai.use(require("sinon-chai"));
-chai.use(require("chai-as-promised"));
+import chai, { expect } from "chai";
+import sinon from "sinon";
+import sinonChai from "sinon-chai";
+import chaiAsPromised from "chai-as-promised";
+import SBS from "../lib/index.js";
 
-const SBS = require("../lib/index");
+chai.use(sinonChai);
+chai.use(chaiAsPromised);
 
 /* eslint-disable-next-line no-console */
 process.on("unhandledRejection", console.dir);
