@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "type": "module",
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   },
   "scripts": {
     "mocha": "mocha \"test/**/*.js\"",
