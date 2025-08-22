@@ -2,9 +2,11 @@
   "name": "simple-batch-system",
   "version": "2.1.0",
   "description": "simple batch system provides job schduler like async function queueing system.",
-  "type": "module",
   "main": "lib/index.js",
-  "repository": "github:so5/sbs",
+  "type": "module",
+  "engines": {
+    "node": ">=14"
+  },
   "scripts": {
     "mocha": "mocha \"test/**/*.js\"",
     "lint": "eslint --fix lib test",
@@ -12,10 +14,19 @@
     "coverage": "c8 report --reporter=text-lcov > coverage-report.lcov",
     "prepare": "husky"
   },
-  "author": {
-    "name": "Naoyuki Sogo"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/so5/sbs.git"
   },
+  "author": "Naoyuki Sogo <sogo@longtail-software.co.jp>",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/so5/sbs/issues"
+  },
+  "homepage": "https://github.com/so5/sbs#readme",
+  "lint-staged": {
+    "*.js": "eslint --fix"
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3.0.0",
     "@eslint/js": "^9.7.0",
@@ -47,8 +58,5 @@
   "dependencies": {
     "debug": "^4.3.4",
     "uuid": "^9.0.1"
-  },
-  "lint-staged": {
-    "*.js": "eslint --fix"
   }
 }
