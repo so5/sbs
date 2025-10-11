@@ -45,7 +45,7 @@
     "sinon": "15.2.0"
   },
   "dependencies": {
-    "debug": "^4.3.4",
+    "debug": "^4.4.3",
     "uuid": "^9.0.1"
   },
   "lint-staged": {
