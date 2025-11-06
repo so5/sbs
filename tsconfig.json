@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "lib"
+  },
+  "include": ["lib/**/*.js"],
+  "exclude": ["node_modules"]
+}
