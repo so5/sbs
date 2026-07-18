@@ -1,3 +1,20 @@
+# [2.3.0](https://github.com/so5/sbs/compare/v2.2.0...v2.3.0) (2026-07-18)
+
+
+### Bug Fixes
+
+* fall back to package.json diff when dependabot update-type is null ([24da66c](https://github.com/so5/sbs/commit/24da66c8e454e57a3f655df17451c3c39e2ee312))
+* match dependabot/snyk bot logins as reported by gh pr list --json ([042ee2d](https://github.com/so5/sbs/commit/042ee2d53929b2468687d9d41871bcbb97966a0a))
+* proactively update PR branch before enabling auto-merge ([a836c41](https://github.com/so5/sbs/commit/a836c418440b6a490330f6b0a3c137f8f73c9636))
+* use admin PAT for release checkout so branch protection doesn't block it ([52e8bfe](https://github.com/so5/sbs/commit/52e8bfeb7c096c2737f2deb3c8d22d049de49ead))
+
+
+### Features
+
+* auto-approve and auto-merge patch/minor bot dependency PRs ([5ea21c1](https://github.com/so5/sbs/commit/5ea21c1ee0681235bd56c16e093460a3b4dc244a))
+* include package/version details in Slack major-update notice ([331c74e](https://github.com/so5/sbs/commit/331c74ec6b837e49c756650a5a326b5ad9353a3a))
+* periodically unstick behind bot PRs with auto-merge enabled ([c7b397f](https://github.com/so5/sbs/commit/c7b397fb453c8b53d57fcf10e92452fb4f859db6))
+
 # [2.2.0](https://github.com/so5/sbs/compare/v2.1.0...v2.2.0) (2026-07-18)
 
 
