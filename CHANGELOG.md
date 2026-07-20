@@ -1,3 +1,10 @@
+## [2.3.1](https://github.com/so5/sbs/compare/v2.3.0...v2.3.1) (2026-07-20)
+
+
+### Bug Fixes
+
+* replace defunct Code Climate coverage reporting with Coveralls ([612bb38](https://github.com/so5/sbs/commit/612bb3805da5663bfe531f1483b1d8690b8c11b6))
+
 # [2.3.0](https://github.com/so5/sbs/compare/v2.2.0...v2.3.0) (2026-07-18)
 
 
