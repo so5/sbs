@@ -55,5 +55,8 @@
   },
   "overrides": {
     "@semantic-release/npm": "^13.1.0"
+  },
+  "engines": {
+    "node": ">=14"
   }
 }
