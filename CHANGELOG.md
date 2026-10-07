@@ -1,3 +1,10 @@
+## [2.3.2](https://github.com/so5/sbs/compare/v2.3.1...v2.3.2) (2026-10-07)
+
+
+### Bug Fixes
+
+* **engines:** set Node requirement to >=14 ([#62](https://github.com/so5/sbs/issues/62)) ([cc4d8d8](https://github.com/so5/sbs/commit/cc4d8d8887671b8cc2442a6fd6e02c05363f5d1e))
+
 ## [2.3.1](https://github.com/so5/sbs/compare/v2.3.0...v2.3.1) (2026-07-20)
 
 
