@@ -54,7 +54,7 @@
     "*.js": "eslint --fix"
   },
   "overrides": {
-    "@semantic-release/npm": "^13.1.0"
+    "@semantic-release/npm": "$@semantic-release/npm"
   },
   "engines": {
     "node": ">=14"
